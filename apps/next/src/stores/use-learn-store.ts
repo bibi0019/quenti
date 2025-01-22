@@ -290,16 +290,19 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
           });
 
           const generateQuestion = (term: StudiableTermWithDistractors) => {
-            const answerMode = state.answerMode != "Both" 
-              ? state.answerMode 
-              : Math.random() < 0.5 ? "Definition" : "Word";
-          
+            const answerMode =
+              state.answerMode != "Both"
+                ? state.answerMode
+                : Math.random() < 0.5
+                  ? "Definition"
+                  : "Word";
+
             if (state.answerType === "MultipleChoice") {
               const distractorIds = term.distractors
                 .filter((x) => x.type == answerMode)
                 .map((x) => x.distractingId);
               const distractors = state.allTerms.filter((x) =>
-                distractorIds.includes(x.id)
+                distractorIds.includes(x.id),
               );
               return {
                 answerMode,
@@ -317,7 +320,9 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
             }
           };
 
-          const roundTimeline: Question[] = termsThisRound.map((term) => generateQuestion(term));
+          const roundTimeline: Question[] = termsThisRound.map((term) =>
+            generateQuestion(term),
+          );
 
           const hasMissedTerms = !!state.studiableTerms.find(
             (x) => x.incorrectCount > 0,

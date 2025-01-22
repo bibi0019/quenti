@@ -5,7 +5,6 @@ import { Stack, Text, useColorModeValue } from "@chakra-ui/react";
 import { SelectAnswerType } from "../../../components/select-answer-type";
 import { useSet } from "../../../hooks/use-set";
 import { useContainerContext } from "../../../stores/use-container-store";
-import { useLearnContext } from "../../../stores/use-learn-store";
 
 export const AnswerTypeSection = () => {
   const { id } = useSet();
@@ -20,7 +19,7 @@ export const AnswerTypeSection = () => {
       <Stack spacing={0}>
         <Text fontWeight={600}>Answer Type</Text>
         <Text fontSize="sm" color={mutedColor}>
-          Choose how to answer questions (This doesn't work yet!)
+          Choose how to answer questions (This doesn&#x27;t work yet!)
         </Text>
       </Stack>
       <SelectAnswerType

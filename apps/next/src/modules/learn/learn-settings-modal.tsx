@@ -10,12 +10,12 @@ import { useAuthedSet } from "../../hooks/use-set";
 import { useContainerContext } from "../../stores/use-container-store";
 import { useSetPropertiesStore } from "../../stores/use-set-properties-store";
 import { AnswerModeSection } from "./settings/answer-mode-section";
+import { AnswerTypeSection } from "./settings/answer-type-section";
 import { ExtendedFeedbackSection } from "./settings/extended-feedback-bank-section";
 import { MultipleAnswerModeSection } from "./settings/multiple-answer-mode-section";
 import { ResetProgressSection } from "./settings/reset-progress-section";
 import { ShuffleLearnSection } from "./settings/shuffle-learn-section";
 import { StudyStarredSection } from "./settings/study-starred-section";
-import { AnswerTypeSection } from "./settings/answer-type-section";
 
 export interface LearnSettingsModal {
   isOpen: boolean;

@@ -1,10 +1,5 @@
-import {
-  Box,
-  Button,
-  HStack,
-  Text,
-  useColorModeValue,
-} from "@chakra-ui/react";
+import { Box, Button, HStack, Text, useColorModeValue } from "@chakra-ui/react";
+
 import { IconFileText, IconListNumbers } from "@tabler/icons-react";
 
 export interface SelectAnswerTypeProps {
