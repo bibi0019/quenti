@@ -21,6 +21,7 @@ export interface ContainerStoreProps {
   cardsAnswerWith: LimitedStudySetAnswerMode;
   matchStudyStarred: boolean;
   starredTerms: string[];
+  answerType: "MultipleChoice" | "Written";
 }
 
 interface ContainerState extends ContainerStoreProps {
@@ -37,6 +38,7 @@ interface ContainerState extends ContainerStoreProps {
   setMatchStudyStarred: (matchStudyStarred: boolean) => void;
   starTerm: (termId: string) => void;
   unstarTerm: (termId: string) => void;
+  setAnswerType: (type: "MultipleChoice" | "Written") => void;
 }
 
 export type ContainerStore = ReturnType<typeof createContainerStore>;
@@ -57,6 +59,7 @@ export const createContainerStore = (
     enableCardsSorting: false,
     matchStudyStarred: false,
     starredTerms: [],
+    answerType: "MultipleChoice",
   };
 
   return createStore<ContainerState>()(
@@ -105,6 +108,9 @@ export const createContainerStore = (
             starredTerms: state.starredTerms.filter((id) => id !== termId),
           };
         });
+      },
+      setAnswerType: (answerType: "MultipleChoice" | "Written") => {
+        set({ answerType });
       },
     })),
   );

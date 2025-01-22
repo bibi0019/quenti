@@ -681,6 +681,11 @@ enum ContainerType {
   Folder
 }
 
+enum AnswerType {
+  MultipleChoice
+  Written
+}
+
 model Container {
   id                   String                    @id @default(cuid())
   entityId             String
@@ -701,6 +706,7 @@ model Container {
   cardsStudyStarred    Boolean                   @default(false)
   cardsAnswerWith      LimitedStudySetAnswerMode @default(Definition)
   matchStudyStarred    Boolean                   @default(false)
+  answerType           AnswerType                @default(MultipleChoice)
 
   starredTerms   StarredTerm[]
   studiableTerms StudiableTerm[]

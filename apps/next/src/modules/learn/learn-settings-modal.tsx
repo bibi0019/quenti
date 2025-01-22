@@ -15,6 +15,7 @@ import { MultipleAnswerModeSection } from "./settings/multiple-answer-mode-secti
 import { ResetProgressSection } from "./settings/reset-progress-section";
 import { ShuffleLearnSection } from "./settings/shuffle-learn-section";
 import { StudyStarredSection } from "./settings/study-starred-section";
+import { AnswerTypeSection } from "./settings/answer-type-section";
 
 export interface LearnSettingsModal {
   isOpen: boolean;
@@ -38,11 +39,11 @@ export const LearnSettingsModal: React.FC<LearnSettingsModal> = ({
   onClose,
   dirtyOnReset,
 }) => {
+  const { container } = useAuthedSet();
+  const answerType = useContainerContext((s) => s.answerType);
   const useExtendedFeedbackBank = useFeature(
     EnabledFeature.ExtendedFeedbackBank,
   );
-
-  const { container } = useAuthedSet();
 
   const shuffleLearn = useContainerContext((s) => s.shuffleLearn);
   const studyStarred = useContainerContext((s) => s.studyStarred);
@@ -60,9 +61,10 @@ export const LearnSettingsModal: React.FC<LearnSettingsModal> = ({
           const isDirty =
             container.shuffleLearn !== shuffleLearn ||
             container.answerWith !== answerWith ||
-            container.studyStarred !== studyStarred;
+            container.studyStarred !== studyStarred ||
+            container.answerType !== answerType;
 
-          setIsDirty(isDirty);
+          if (isDirty) setIsDirty(true);
           onClose();
         }}
         isCentered={sm}
@@ -72,6 +74,8 @@ export const LearnSettingsModal: React.FC<LearnSettingsModal> = ({
         <Modal.Content>
           <Modal.Body>
             <Modal.Heading>Settings</Modal.Heading>
+            <AnswerTypeSection />
+            <Modal.Divider />
             <StudyStarredSection />
             <Modal.Divider />
             <ShuffleLearnSection />

@@ -35,6 +35,7 @@ export interface LearnStoreProps {
   completed: boolean;
   hasMissedTerms?: boolean;
   prevTermWasIncorrect?: boolean;
+  answerType: "MultipleChoice" | "Written";
 }
 
 interface LearnState extends LearnStoreProps {
@@ -74,6 +75,7 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
     specialCharacters: [],
     feedbackBank: { correct: CORRECT, incorrect: INCORRECT },
     completed: false,
+    answerType: "MultipleChoice",
   };
 
   return createStore<LearnState>()(
@@ -287,40 +289,35 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
             if (x.correctness == 0) x.appearedInRound = currentRound;
           });
 
-          const roundTimeline: Question[] = termsThisRound.map((term) => {
-            const choice = term.correctness < 1;
-            const answerMode: StudySetAnswerMode =
-              state.answerMode != "Both"
-                ? state.answerMode
-                : Math.random() < 0.5
-                  ? "Definition"
-                  : "Word";
-
-            if (choice) {
+          const generateQuestion = (term: StudiableTermWithDistractors) => {
+            const answerMode = state.answerMode != "Both" 
+              ? state.answerMode 
+              : Math.random() < 0.5 ? "Definition" : "Word";
+          
+            if (state.answerType === "MultipleChoice") {
               const distractorIds = term.distractors
                 .filter((x) => x.type == answerMode)
                 .map((x) => x.distractingId);
               const distractors = state.allTerms.filter((x) =>
-                distractorIds.includes(x.id),
+                distractorIds.includes(x.id)
               );
-
-              const choices = shuffleArray(distractors.concat(term));
-
               return {
                 answerMode,
-                choices,
+                choices: shuffleArray(distractors.concat(term)),
                 term,
-                type: "choice",
+                type: "choice" as const,
               };
             } else {
               return {
                 answerMode,
                 choices: [],
                 term,
-                type: "write",
+                type: "write" as const,
               };
             }
-          });
+          };
+
+          const roundTimeline: Question[] = termsThisRound.map((term) => generateQuestion(term));
 
           const hasMissedTerms = !!state.studiableTerms.find(
             (x) => x.incorrectCount > 0,

@@ -12,6 +12,7 @@ import { ZCompleteLearnRoundSchema } from "./complete-learn-round.schema";
 import { ZResetCardsProgressSchema } from "./reset-cards-progress.schema";
 import { ZResetLearnProgressSchema } from "./reset-learn-progress.schema";
 import { ZSetAnswerModeSchema } from "./set-answer-mode.schema";
+import { ZSetAnswerTypeSchema } from "./set-answer-type.schema";
 import { ZSetCardsAnswerWithSchema } from "./set-cards-answer-with.schema";
 import { ZSetCardsStudyStarredSchema } from "./set-cards-study-starred.schema";
 import { ZSetEnableCardsSortingSchema } from "./set-enable-cards-sorting.schema";
@@ -33,6 +34,7 @@ type ContainerRouterHandlerCache = {
     ["set-match-study-starred"]?: typeof import("./set-match-study-starred.handler").setMatchStudyStarredHandler;
     ["set-study-starred"]?: typeof import("./set-study-starred.handler").setStudyStarredHandler;
     ["set-answer-mode"]?: typeof import("./set-answer-mode.handler").setAnswerModeHandler;
+    ["set-answer-type"]?: typeof import("./set-answer-type.handler").setAnswerTypeHandler;
     ["set-multiple-answer-mode"]?: typeof import("./set-multiple-answer-mode.handler").setMultipleAnswerModeHandler;
     ["set-shuffle-learn"]?: typeof import("./set-shuffle-learn.handler").setShuffleLearnHandler;
     ["set-extended-feedback-bank"]?: typeof import("./set-extended-feedback-bank.handler").setExtendedFeedbackBankHandler;
@@ -105,6 +107,12 @@ export const containerRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       await loadHandler(HANDLER_CACHE, "set-answer-mode");
       return HANDLER_CACHE.handlers["set-answer-mode"]!({ ctx, input });
+    }),
+  setAnswerType: protectedProcedure
+    .input(ZSetAnswerTypeSchema)
+    .mutation(async ({ ctx, input }) => {
+      await loadHandler(HANDLER_CACHE, "set-answer-type");
+      return HANDLER_CACHE.handlers["set-answer-type"]!({ ctx, input });
     }),
   setMultipleAnswerMode: protectedProcedure
     .input(ZSetMultipleAnswerModeSchema)
