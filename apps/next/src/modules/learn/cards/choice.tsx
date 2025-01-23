@@ -70,7 +70,7 @@ export const ChoiceCard: React.FC<ChoiceCardProps> = ({ active }) => {
         id: active.term.id,
         containerId: container.id,
         mode: "Learn",
-        correctness: 1,
+        correctness: 2,
         appearedInRound: active.term.appearedInRound || 0,
         incorrectCount: active.term.incorrectCount,
       });
