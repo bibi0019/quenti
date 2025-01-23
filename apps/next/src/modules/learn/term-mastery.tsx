@@ -9,7 +9,10 @@ export const TermMastery = () => {
   return (
     <Grid gridTemplateColumns="1fr 1fr 1fr" gap={4} w="full">
       <GridStat label="Unstudied" value={unstudied?.length || 0} />
-      <GridStat label="Open Settings and Close to make this to Zero" value={familiar?.length || 0} />
+      <GridStat
+        label="Open Settings and Close to make this to Zero"
+        value={familiar?.length || 0}
+      />
       <GridStat label="Mastered" value={mastered?.length || 0} />
     </Grid>
   );
