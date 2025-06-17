@@ -152,22 +152,26 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
         }, 1000);
       },
       answerIncorrectly: (termId) => {
-        set((state) => ({
-          answered: termId,
-          status: "incorrect",
-          roundTimeline:
-            state.roundProgress != state.termsThisRound - 1
-              ? [
-                  ...state.roundTimeline,
-                  state.roundTimeline[state.roundCounter]!,
-                ]
-              : state.roundTimeline,
-          prevTermWasIncorrect: true,
-        }));
+        set((state) => {
+          const active = state.roundTimeline[state.roundCounter]!;
+          const shouldRepeat =
+            active.term.correctness !== 1 && active.type !== "write";
+          return {
+            answered: termId,
+            status: "incorrect",
+            roundTimeline:
+              shouldRepeat && state.roundProgress != state.termsThisRound - 1
+                ? [...state.roundTimeline, active]
+                : state.roundTimeline,
+            prevTermWasIncorrect: true,
+          };
+        });
       },
       acknowledgeIncorrect: () => {
         set((state) => {
           const active = state.roundTimeline[state.roundCounter]!;
+          const shouldRepeat =
+            active.term.correctness !== 1 && active.type !== "write";
           // Set correctness based on question type: -2 for choice, -1 for write
           active.term.correctness = active.type === "choice" ? -2 : -1;
           active.term.incorrectCount++;
@@ -178,6 +182,11 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
               isRetyping: false,
               correctAnswerToRetype: undefined,
             });
+          }
+
+          if (!shouldRepeat) {
+            state.roundProgress++;
+            state.prevTermWasIncorrect = false;
           }
 
           state.endQuestionCallback(false);
@@ -225,7 +234,7 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
             return { completed: true, hasMissedTerms };
           }
 
-          if (state.roundProgress === state.termsThisRound - 1) {
+          if (state.roundCounter === state.roundTimeline.length - 1) {
             return {
               roundSummary: {
                 round: state.currentRound,
@@ -276,23 +285,32 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
         });
       },
       incorrectFromUnknown: (termId) => {
-        set((state) => ({
-          answered: termId,
-          roundTimeline:
-            state.roundProgress != state.termsThisRound - 1
-              ? [
-                  ...state.roundTimeline,
-                  state.roundTimeline[state.roundCounter]!,
-                ]
-              : state.roundTimeline,
-          prevTermWasIncorrect: true,
-        }));
+        set((state) => {
+          const active = state.roundTimeline[state.roundCounter]!;
+          const shouldRepeat =
+            active.term.correctness !== 1 && active.type !== "write";
+          return {
+            answered: termId,
+            roundTimeline:
+              shouldRepeat && state.roundProgress != state.termsThisRound - 1
+                ? [...state.roundTimeline, active]
+                : state.roundTimeline,
+            prevTermWasIncorrect: true,
+          };
+        });
 
         set((state) => {
           const active = state.roundTimeline[state.roundCounter]!;
+          const shouldRepeat =
+            active.term.correctness !== 1 && active.type !== "write";
           // Set correctness based on question type: -2 for choice, -1 for write
           active.term.correctness = active.type === "choice" ? -2 : -1;
           active.term.incorrectCount++;
+
+          if (!shouldRepeat) {
+            state.roundProgress++;
+            state.prevTermWasIncorrect = false;
+          }
 
           state.endQuestionCallback(false);
           return {};

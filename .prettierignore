@@ -11,3 +11,4 @@ public
 
 .gitignore
 .eslintignore
+apps/next/next.config.mjs
