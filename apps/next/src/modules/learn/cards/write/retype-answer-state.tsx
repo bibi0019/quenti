@@ -49,7 +49,7 @@ export const RetypeAnswerState: React.FC<RetypeAnswerStateProps> = ({
 
   const put = api.studiableTerms.put.useMutation();
 
-  const handleAcknowledgeIncorrect = React.useCallback(() => {
+  React.useEffect(() => {
     const active = roundTimeline[roundCounter]!;
     if (active.type == "write") {
       void (async () =>
@@ -62,11 +62,9 @@ export const RetypeAnswerState: React.FC<RetypeAnswerStateProps> = ({
           incorrectCount: active.term.incorrectCount + 1,
         }))();
     }
-  }, [container.id, put, roundCounter, roundTimeline]);
-
-  React.useEffect(() => {
-    handleAcknowledgeIncorrect();
-  }, [handleAcknowledgeIncorrect]);
+    // We only want to mark the term incorrect once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const inputBg = useColorModeValue("gray.100", "gray.800");
   const placeholderColor = useColorModeValue("gray.600", "gray.200");
