@@ -648,6 +648,7 @@ enum EntityType {
 enum StudiableMode {
   Flashcards
   Learn
+  SpacedRepetition
 }
 
 enum LearnMode {
@@ -702,6 +703,9 @@ model Container {
   cardsAnswerWith      LimitedStudySetAnswerMode @default(Definition)
   matchStudyStarred    Boolean                   @default(false)
   requireRetyping      Boolean                   @default(false)
+  spacedRound          Int                       @default(0)
+  nextReviewAt         DateTime?
+  spacedDailyLimit     Int                       @default(10)
 
   starredTerms   StarredTerm[]
   studiableTerms StudiableTerm[]
