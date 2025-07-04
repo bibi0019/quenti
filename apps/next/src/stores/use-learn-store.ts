@@ -29,6 +29,7 @@ export interface LearnStoreProps {
   roundTimeline: Question[];
   specialCharacters: string[];
   feedbackBank: { correct: string[]; incorrect: string[] };
+  questionTypes: ("choice" | "write")[];
   answered?: string;
   status?: "correct" | "incorrect" | "unknownPartial";
   roundSummary?: RoundSummary;
@@ -44,6 +45,7 @@ interface LearnState extends LearnStoreProps {
   initialize: (
     mode: LearnMode,
     answerMode: StudySetAnswerMode,
+    questionTypes: ("choice" | "write")[],
     studiableTerms: StudiableTermWithDistractors[],
     allTerms: TermWithDistractors[],
     round: number,
@@ -79,6 +81,7 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
     roundTimeline: [],
     specialCharacters: [],
     feedbackBank: { correct: CORRECT, incorrect: INCORRECT },
+    questionTypes: ["choice", "write"],
     completed: false,
     hintsUsed: new Map<string, boolean>(),
     isRetyping: false,
@@ -89,7 +92,14 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
     subscribeWithSelector((set) => ({
       ...DEFAULT_PROPS,
       ...initProps,
-      initialize: (mode, answerMode, studiableTerms, allTerms, round) => {
+      initialize: (
+        mode,
+        answerMode,
+        questionTypes,
+        studiableTerms,
+        allTerms,
+        round,
+      ) => {
         const words =
           answerMode != "Both"
             ? studiableTerms.map((x) => word(answerMode, x, "answer"))
@@ -112,6 +122,7 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
         set({
           mode,
           answerMode,
+          questionTypes,
           studiableTerms,
           allTerms,
           numTerms: studiableTerms.length,
@@ -356,7 +367,15 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
           });
 
           const roundTimeline: Question[] = termsThisRound.map((term) => {
-            const choice = term.correctness < 1;
+            let choice: boolean;
+            if (
+              state.questionTypes.includes("choice") &&
+              state.questionTypes.includes("write")
+            ) {
+              choice = term.correctness < 1;
+            } else {
+              choice = state.questionTypes.includes("choice");
+            }
             const answerMode: StudySetAnswerMode =
               state.answerMode != "Both"
                 ? state.answerMode

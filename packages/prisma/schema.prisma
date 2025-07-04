@@ -692,6 +692,7 @@ model Container {
   learnRound           Int                       @default(0)
   learnMode            LearnMode                 @default(Learn)
   shuffleLearn         Boolean                   @default(false)
+  learnQuestionTypes   String                    @default("[\"choice\",\"write\"]")
   studyStarred         Boolean                   @default(false)
   answerWith           StudySetAnswerMode        @default(Word)
   multipleAnswerMode   MultipleAnswerMode        @default(Unknown)

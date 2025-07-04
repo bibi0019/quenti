@@ -16,6 +16,7 @@ import { ZSetCardsAnswerWithSchema } from "./set-cards-answer-with.schema";
 import { ZSetCardsStudyStarredSchema } from "./set-cards-study-starred.schema";
 import { ZSetEnableCardsSortingSchema } from "./set-enable-cards-sorting.schema";
 import { ZSetExtendedFeedbackBankSchema } from "./set-extended-feedback-bank.schema";
+import { ZSetLearnQuestionTypesSchema } from "./set-learn-question-types.schema";
 import { ZSetMatchStudyStarredSchema } from "./set-match-study-starred.schema";
 import { ZSetMultipleAnswerModeSchema } from "./set-multiple-answer-mode.schema";
 import { ZSetRequireRetypingSchema } from "./set-require-retyping.schema";
@@ -38,6 +39,7 @@ type ContainerRouterHandlerCache = {
     ["set-shuffle-learn"]?: typeof import("./set-shuffle-learn.handler").setShuffleLearnHandler;
     ["set-extended-feedback-bank"]?: typeof import("./set-extended-feedback-bank.handler").setExtendedFeedbackBankHandler;
     ["set-require-retyping"]?: typeof import("./set-require-retyping.handler").default;
+    ["set-learn-question-types"]?: typeof import("./set-learn-question-types.handler").setLearnQuestionTypesHandler;
     ["star-term"]?: typeof import("./star-term.handler").starTermHandler;
     ["unstar-term"]?: typeof import("./unstar-term.handler").unstarTermHandler;
     ["complete-learn-round"]?: typeof import("./complete-learn-round.handler").completeLearnRoundHandler;
@@ -139,6 +141,15 @@ export const containerRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       await loadHandler(HANDLER_CACHE, "set-require-retyping");
       return HANDLER_CACHE.handlers["set-require-retyping"]!({
+        ctx,
+        input,
+      });
+    }),
+  setLearnQuestionTypes: protectedProcedure
+    .input(ZSetLearnQuestionTypesSchema)
+    .mutation(async ({ ctx, input }) => {
+      await loadHandler(HANDLER_CACHE, "set-learn-question-types");
+      return HANDLER_CACHE.handlers["set-learn-question-types"]!({
         ctx,
         input,
       });

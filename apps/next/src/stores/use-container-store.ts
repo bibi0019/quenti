@@ -22,6 +22,7 @@ export interface ContainerStoreProps {
   matchStudyStarred: boolean;
   starredTerms: string[];
   requireRetyping: boolean;
+  learnQuestionTypes: ("choice" | "write")[];
 }
 
 interface ContainerState extends ContainerStoreProps {
@@ -37,6 +38,7 @@ interface ContainerState extends ContainerStoreProps {
   setCardsAnswerWith: (cardsAnswerWith: LimitedStudySetAnswerMode) => void;
   setMatchStudyStarred: (matchStudyStarred: boolean) => void;
   setRequireRetyping: (requireRetyping: boolean) => void;
+  setLearnQuestionTypes: (learnQuestionTypes: ("choice" | "write")[]) => void;
   starTerm: (termId: string) => void;
   unstarTerm: (termId: string) => void;
 }
@@ -60,6 +62,7 @@ export const createContainerStore = (
     matchStudyStarred: false,
     starredTerms: [],
     requireRetyping: false,
+    learnQuestionTypes: ["choice", "write"],
   };
 
   return createStore<ContainerState>()(
@@ -97,6 +100,8 @@ export const createContainerStore = (
         set({ matchStudyStarred }),
       setRequireRetyping: (requireRetyping: boolean) =>
         set({ requireRetyping }),
+      setLearnQuestionTypes: (learnQuestionTypes: ("choice" | "write")[]) =>
+        set({ learnQuestionTypes }),
       starTerm: (termId: string) => {
         set((state) => {
           return {
