@@ -35,9 +35,15 @@ export const QuestionTypeSection: React.FC = () => {
   const apiMutation = api.container.setLearnQuestionTypes.useMutation();
 
   const toggle = (type: "choice" | "write") => {
-    const next = questionTypes.includes(type)
-      ? questionTypes.filter((t) => t !== type)
-      : [...questionTypes, type];
+    let next: ("choice" | "write")[];
+    if (questionTypes.includes(type)) {
+      const filtered = questionTypes.filter((t) => t !== type);
+      next = filtered.length
+        ? filtered
+        : [type === "choice" ? "write" : "choice"];
+    } else {
+      next = [...questionTypes, type];
+    }
     setQuestionTypes(next);
     apiMutation.mutate({ entityId: id, learnQuestionTypes: next });
   };
