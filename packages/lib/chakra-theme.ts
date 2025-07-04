@@ -1,5 +1,3 @@
-import { Open_Sans, Outfit } from "next/font/google";
-
 import {
   type ChakraProps,
   type ChakraTheme,
@@ -9,24 +7,20 @@ import {
 } from "@chakra-ui/react";
 import { type StyleFunctionProps, cssVar, mode } from "@chakra-ui/theme-tools";
 
-export const outfit = Outfit({
-  weight: ["400", "500", "600", "700"],
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-outfit",
-});
-export const openSans = Open_Sans({
-  weight: ["400", "500", "600", "700"],
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-open-sans",
-});
-
 export const config = { initialColorMode: "light", useSystemColorMode: false };
 
+export const outfit = {
+  style: { fontFamily: "Outfit, sans-serif" },
+  variable: "--font-outfit",
+};
+export const openSans = {
+  style: { fontFamily: "Open Sans, sans-serif" },
+  variable: "--font-open-sans",
+};
+
 export const fonts = {
-  heading: outfit.style.fontFamily,
-  body: openSans.style.fontFamily,
+  heading: "Outfit, sans-serif",
+  body: "Open Sans, sans-serif",
 };
 
 export const colors = {

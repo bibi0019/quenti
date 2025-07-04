@@ -79,11 +79,11 @@ export const LearnSettingsModal: React.FC<LearnSettingsModal> = ({
         <Modal.Content>
           <Modal.Body>
             <Modal.Heading>Settings</Modal.Heading>
+            <QuestionTypeSection />
+            <Modal.Divider />
             <StudyStarredSection />
             <Modal.Divider />
             <ShuffleLearnSection />
-            <Modal.Divider />
-            <QuestionTypeSection />
             <Modal.Divider />
             <AnswerModeSection />
             {multipleAnswerMode !== "Unknown" && (

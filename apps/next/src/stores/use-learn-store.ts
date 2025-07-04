@@ -145,9 +145,15 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
         setTimeout(() => {
           set((state) => {
             const active = state.roundTimeline[state.roundCounter]!;
-            if (active.type === "choice") {
+            const original = active.term.correctness;
+            if (
+              state.questionTypes.length === 1 &&
+              (original === 0 || original === -1)
+            ) {
+              active.term.correctness = 2;
+            } else if (active.type === "choice") {
               // For choice questions: -2 → -1 → 1
-              if (active.term.correctness === -2) {
+              if (original === -2) {
                 active.term.correctness = -1;
               } else {
                 active.term.correctness = 1;
@@ -181,7 +187,11 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
         set((state) => {
           const active = state.roundTimeline[state.roundCounter]!;
           const shouldRepeat = active.term.correctness === -2;
-          const newCorrectness = active.type === "choice" ? -2 : -1;
+          const original = active.term.correctness;
+          let newCorrectness = active.type === "choice" ? -2 : -1;
+          if (state.questionTypes.length === 1 && original === 0) {
+            newCorrectness = -1;
+          }
           active.term.correctness = newCorrectness;
           active.term.incorrectCount++;
 
@@ -315,7 +325,11 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
         set((state) => {
           const active = state.roundTimeline[state.roundCounter]!;
           const shouldRepeat = active.term.correctness === -2;
-          const newCorrectness = active.type === "choice" ? -2 : -1;
+          const original = active.term.correctness;
+          let newCorrectness = active.type === "choice" ? -2 : -1;
+          if (state.questionTypes.length === 1 && original === 0) {
+            newCorrectness = -1;
+          }
           active.term.correctness = newCorrectness;
           active.term.incorrectCount++;
 
