@@ -66,7 +66,8 @@ export const LearnSettingsModal: React.FC<LearnSettingsModal> = ({
             container.answerWith !== answerWith ||
             container.studyStarred !== studyStarred ||
             container.requireRetyping !== requireRetyping ||
-            container.learnQuestionTypes.join() !== learnQuestionTypes.join();
+            (container.learnQuestionTypes as ("choice" | "write")[]).join() !==
+              learnQuestionTypes.join();
 
           setIsDirty(isDirty);
           onClose();

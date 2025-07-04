@@ -57,7 +57,7 @@ export const CreateLearnData: React.FC<React.PropsWithChildren> = ({
       .initialize(
         container.learnMode,
         container.answerWith,
-        container.learnQuestionTypes,
+        container.learnQuestionTypes as ("choice" | "write")[],
         learnTerms as StudiableTermWithDistractors[],
         terms as TermWithDistractors[],
         container.learnRound,

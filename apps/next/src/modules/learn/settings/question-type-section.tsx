@@ -14,8 +14,8 @@ import {
 
 import { IconLayoutGrid, IconPencil } from "@tabler/icons-react";
 
-import { useSet } from "../../hooks/use-set";
-import { useContainerContext } from "../../stores/use-container-store";
+import { useSet } from "../../../hooks/use-set";
+import { useContainerContext } from "../../../stores/use-container-store";
 
 const typeConfig = {
   choice: {
