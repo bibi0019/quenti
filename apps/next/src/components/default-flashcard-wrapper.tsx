@@ -118,7 +118,7 @@ export const DefaultFlashcardWrapper = () => {
         const threshold = 80; // minimum drag distance for navigation
         const velocityThreshold = 400; // minimum velocity for swipe
         
-        if (Math.abs(info.offset.x) > threshold || Math.abs(info.velocity.x) > velocityThreshold) {
+        if (Math.abs(info.offset.x) >= threshold || Math.abs(info.velocity.x) >= velocityThreshold) {
           if (info.offset.x > 0 || info.velocity.x > 0) {
             // Swiped right - previous card
             onPrev();

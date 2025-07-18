@@ -216,13 +216,15 @@ export const SortFlashcardWrapper = () => {
                 const threshold = 50; // minimum drag distance
                 const velocityThreshold = 300; // minimum velocity for swipe
                 
-                if (Math.abs(info.offset.x) > threshold || Math.abs(info.velocity.x) > velocityThreshold) {
+                if (Math.abs(info.offset.x) >= threshold || Math.abs(info.velocity.x) >= velocityThreshold) {
+                  if (!term) return; // Safety check
+                  
                   if (info.offset.x > 0 || info.velocity.x > 0) {
                     // Swiped right - mark as known
-                    markCardCallback(term!, true);
+                    markCardCallback(term, true);
                   } else {
                     // Swiped left - mark as still learning
-                    markCardCallback(term!, false);
+                    markCardCallback(term, false);
                   }
                 } else {
                   // Return to center if drag didn't meet threshold
