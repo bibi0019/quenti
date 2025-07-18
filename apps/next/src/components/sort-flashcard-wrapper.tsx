@@ -59,6 +59,7 @@ export const SortFlashcardWrapper = () => {
 
   const [hasUserEngaged, setHasUserEngaged] = React.useState(false);
   const [state, setState] = React.useState<"stillLearning" | "known">();
+  const [dragDirection, setDragDirection] = React.useState<"left" | "right" | null>(null);
 
   const allowAnimation = React.useCallback(() => {
     setHasUserEngaged(true);
@@ -195,6 +196,46 @@ export const SortFlashcardWrapper = () => {
               id="sortable-flashcard"
               key={`flashcard-${t.id}-${i}`}
               animate={controls}
+              drag="x"
+              dragConstraints={{ left: -300, right: 300 }}
+              dragElastic={0.2}
+              onDrag={(event, info) => {
+                // Provide visual feedback during drag
+                const threshold = 30;
+                if (Math.abs(info.offset.x) > threshold) {
+                  setDragDirection(info.offset.x > 0 ? "right" : "left");
+                } else {
+                  setDragDirection(null);
+                }
+              }}
+              onDragEnd={(event, info) => {
+                // Reset drag direction
+                setDragDirection(null);
+                
+                // Detect swipe based on velocity and offset
+                const threshold = 50; // minimum drag distance
+                const velocityThreshold = 300; // minimum velocity for swipe
+                
+                if (Math.abs(info.offset.x) > threshold || Math.abs(info.velocity.x) > velocityThreshold) {
+                  if (info.offset.x > 0 || info.velocity.x > 0) {
+                    // Swiped right - mark as known
+                    markCardCallback(term!, true);
+                  } else {
+                    // Swiped left - mark as still learning
+                    markCardCallback(term!, false);
+                  }
+                } else {
+                  // Return to center if drag didn't meet threshold
+                  controls.start({
+                    x: 0,
+                    transition: { type: "spring", stiffness: 300, damping: 30 }
+                  });
+                }
+              }}
+              whileDrag={{
+                scale: 1.05,
+                transition: { duration: 0 }
+              }}
               style={{
                 position: "absolute",
                 top: 0,
@@ -206,7 +247,11 @@ export const SortFlashcardWrapper = () => {
                 outlineWidth: "3px",
                 outlineStyle: "solid",
                 outlineColor:
-                  state == "known"
+                  dragDirection === "right"
+                    ? "rgba(104, 211, 145, 0.8)"
+                    : dragDirection === "left"
+                    ? "rgba(252, 129, 129, 0.8)"
+                    : state == "known"
                     ? "rgba(104, 211, 145, 0)"
                     : "rgba(252, 129, 129, 0)",
                 transformOrigin: "center",

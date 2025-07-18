@@ -110,6 +110,34 @@ export const DefaultFlashcardWrapper = () => {
   return (
     <motion.div
       animate={controls}
+      drag="x"
+      dragConstraints={{ left: -200, right: 200 }}
+      dragElastic={0.2}
+      onDragEnd={(event, info) => {
+        // Detect swipe for navigation
+        const threshold = 80; // minimum drag distance for navigation
+        const velocityThreshold = 400; // minimum velocity for swipe
+        
+        if (Math.abs(info.offset.x) > threshold || Math.abs(info.velocity.x) > velocityThreshold) {
+          if (info.offset.x > 0 || info.velocity.x > 0) {
+            // Swiped right - previous card
+            onPrev();
+          } else {
+            // Swiped left - next card
+            onNext();
+          }
+        } else {
+          // Return to center if drag didn't meet threshold
+          controls.start({
+            x: 0,
+            transition: { type: "spring", stiffness: 300, damping: 30 }
+          });
+        }
+      }}
+      whileDrag={{
+        scale: 1.02,
+        transition: { duration: 0 }
+      }}
       style={{
         width: "100%",
         transformPerspective: 1500,
