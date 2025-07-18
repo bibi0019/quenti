@@ -9,6 +9,7 @@ import { useSetPropertiesStore } from "../../stores/use-set-properties-store";
 import { CardsAnswerModeSection } from "./settings/cards-answer-mode-section";
 import { CardsSortingSection } from "./settings/cards-sorting-section";
 import { RestartFlashcardsSection } from "./settings/restart-flashcards-section";
+import { SaveProgressSection } from "./settings/save-progress-section";
 import { StudyStarredSection } from "./settings/study-starred-section";
 
 export interface FlashcardsSettingsModalProps {
@@ -23,12 +24,15 @@ export const FlashcardsSettingsModal: React.FC<
   const { container } = useSetFolderUnison();
   const setIsDirty = useSetPropertiesStore((s) => s.setIsDirty);
   const cardsStudyStarred = useContainerContext((s) => s.cardsStudyStarred);
+  const cardsSaveProgress = useContainerContext((s) => s.cardsSaveProgress);
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={() => {
-        const isDirty = container?.cardsStudyStarred !== cardsStudyStarred;
+        const isDirty =
+          container?.cardsStudyStarred !== cardsStudyStarred ||
+          container?.cardsSaveProgress !== cardsSaveProgress;
         if (status == "authenticated" && isDirty) setIsDirty(true);
 
         onClose();
@@ -42,6 +46,7 @@ export const FlashcardsSettingsModal: React.FC<
           <Modal.Divider />
           <CardsAnswerModeSection />
           <StudyStarredSection />
+          <SaveProgressSection />
         </Modal.Body>
         <Authed>
           <Modal.Divider />

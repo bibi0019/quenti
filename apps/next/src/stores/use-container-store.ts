@@ -19,6 +19,7 @@ export interface ContainerStoreProps {
   enableCardsSorting: boolean;
   cardsStudyStarred: boolean;
   cardsAnswerWith: LimitedStudySetAnswerMode;
+  cardsSaveProgress: boolean;
   matchStudyStarred: boolean;
   starredTerms: string[];
   requireRetyping: boolean;
@@ -37,6 +38,7 @@ interface ContainerState extends ContainerStoreProps {
   setCardsStudyStarred: (cardsStudyStarred: boolean) => void;
   setCardsAnswerWith: (cardsAnswerWith: LimitedStudySetAnswerMode) => void;
   setMatchStudyStarred: (matchStudyStarred: boolean) => void;
+  setCardsSaveProgress: (cardsSaveProgress: boolean) => void;
   setRequireRetyping: (requireRetyping: boolean) => void;
   setLearnQuestionTypes: (learnQuestionTypes: ("choice" | "write")[]) => void;
   starTerm: (termId: string) => void;
@@ -59,6 +61,7 @@ export const createContainerStore = (
     cardsAnswerWith: "Definition",
     cardsStudyStarred: false,
     enableCardsSorting: false,
+    cardsSaveProgress: false,
     matchStudyStarred: false,
     starredTerms: [],
     requireRetyping: false,
@@ -98,6 +101,8 @@ export const createContainerStore = (
         set({ cardsAnswerWith }),
       setMatchStudyStarred: (matchStudyStarred: boolean) =>
         set({ matchStudyStarred }),
+      setCardsSaveProgress: (cardsSaveProgress: boolean) =>
+        set({ cardsSaveProgress }),
       setRequireRetyping: (requireRetyping: boolean) =>
         set({ requireRetyping }),
       setLearnQuestionTypes: (learnQuestionTypes: ("choice" | "write")[]) =>

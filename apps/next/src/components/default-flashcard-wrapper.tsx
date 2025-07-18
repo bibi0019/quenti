@@ -1,6 +1,9 @@
 import { motion, useAnimationControls } from "framer-motion";
 import React from "react";
 
+import { api } from "@quenti/trpc";
+
+import { useSetFolderUnison } from "../hooks/use-set-folder-unison";
 import { useContainerContext } from "../stores/use-container-store";
 import { Flashcard } from "./flashcard";
 import { FlashcardShorcutLayer } from "./flashcard-shortcut-layer";
@@ -11,6 +14,10 @@ export const DefaultFlashcardWrapper = () => {
     React.useContext(RootFlashcardContext);
 
   const controls = useAnimationControls();
+
+  const { container } = useSetFolderUnison();
+  const put = api.studiableTerms.put.useMutation();
+  const cardsSaveProgress = useContainerContext((s) => s.cardsSaveProgress);
 
   const cardsAnswerWith = useContainerContext((s) => s.cardsAnswerWith);
   const autoplayFlashcards = useContainerContext((s) => s.autoplayFlashcards);
@@ -35,21 +42,38 @@ export const DefaultFlashcardWrapper = () => {
   const term = sortedTerms[index];
   const starred = term ? starredTerms.includes(term.id) : false;
 
-  const onPrev = async () => {
-    if (index === 0) return;
-
-    setIsFlipped(shouldFlip);
-    setIndex((i) => (i - 1 + sortedTerms.length) % sortedTerms.length);
-    await animateTransition(false);
-  };
-
-  const onNext = async () => {
+  const advanceNext = async () => {
     if (index === sortedTerms.length - 1) return;
 
     setIsFlipped(shouldFlip);
     setIndex((i) => (i + 1) % sortedTerms.length);
     await animateTransition();
   };
+
+  const markCard = async (know: boolean) => {
+    if (!term) return;
+
+    if (cardsSaveProgress) {
+      const existing = container.studiableTerms.find(
+        (t) => t.id === term.id && t.mode === "Flashcards",
+      );
+      await put.mutateAsync({
+        id: term.id,
+        containerId: container.id,
+        mode: "Flashcards",
+        correctness: know ? 1 : -1,
+        appearedInRound: container.cardsRound || 0,
+        incorrectCount: know
+          ? existing?.incorrectCount || 0
+          : (existing?.incorrectCount || 0) + 1,
+      });
+    }
+
+    await advanceNext();
+  };
+
+  const markRemembered = () => markCard(true);
+  const markUnremembered = () => markCard(false);
 
   const flipCard = async () => {
     await controls.start({
@@ -84,7 +108,7 @@ export const DefaultFlashcardWrapper = () => {
             setIndex(0);
             await animateTransition();
           } else {
-            await onNext();
+            await advanceNext();
           }
         } else {
           await flipCard();
@@ -110,6 +134,12 @@ export const DefaultFlashcardWrapper = () => {
   return (
     <motion.div
       animate={controls}
+      drag="x"
+      dragConstraints={{ left: 0, right: 0 }}
+      onDragEnd={(_, info) => {
+        if (info.offset.x > 100) void markRemembered();
+        else if (info.offset.x < -100) void markUnremembered();
+      }}
       style={{
         width: "100%",
         transformPerspective: 1500,
@@ -119,8 +149,8 @@ export const DefaultFlashcardWrapper = () => {
     >
       <FlashcardShorcutLayer
         triggerFlip={flipCard}
-        triggerPrev={onPrev}
-        triggerNext={onNext}
+        triggerPrev={markRemembered}
+        triggerNext={markUnremembered}
       />
       {term && (
         <Flashcard
@@ -129,8 +159,8 @@ export const DefaultFlashcardWrapper = () => {
           index={index}
           isFlipped={isFlipped}
           numTerms={sortedTerms.length}
-          onLeftAction={onPrev}
-          onRightAction={onNext}
+          onLeftAction={markRemembered}
+          onRightAction={markUnremembered}
           starred={starred}
           onRequestEdit={() => editTerm(term, isFlipped)}
           onRequestStar={() => starTerm(term)}

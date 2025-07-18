@@ -42,6 +42,7 @@ export const FolderContext = React.createContext<FolderData>({
     cardsRound: 0,
     cardsStudyStarred: false,
     cardsAnswerWith: "Definition",
+    cardsSaveProgress: false,
     matchStudyStarred: false,
   },
   terms: [],
@@ -119,6 +120,8 @@ const ContextLayer: React.FC<React.PropsWithChildren<{ data: FolderData }>> = ({
     enableCardsSorting: data.container.enableCardsSorting,
     cardsStudyStarred: data.container.cardsStudyStarred,
     cardsAnswerWith: data.container.cardsAnswerWith,
+    cardsSaveProgress: (data.container as { cardsSaveProgress: boolean })
+      .cardsSaveProgress,
     matchStudyStarred: data.container.matchStudyStarred,
   });
 

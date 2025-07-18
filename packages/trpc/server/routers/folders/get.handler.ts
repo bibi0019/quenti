@@ -252,6 +252,8 @@ export const getHandler = async ({ ctx, input }: GetOptions) => {
       cardsRound: container.cardsRound,
       cardsStudyStarred: container.cardsStudyStarred,
       cardsAnswerWith: container.cardsAnswerWith,
+      cardsSaveProgress: (container as { cardsSaveProgress: boolean })
+        .cardsSaveProgress,
       matchStudyStarred: container.matchStudyStarred,
       starredTerms,
       studiableTerms: container.studiableTerms.map((x: StudiableTerm) => ({

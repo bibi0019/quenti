@@ -698,6 +698,7 @@ model Container {
   cardsRound           Int                       @default(0)
   cardsStudyStarred    Boolean                   @default(false)
   cardsAnswerWith      LimitedStudySetAnswerMode @default(Definition)
+  cardsSaveProgress    Boolean                   @default(false)
   matchStudyStarred    Boolean                   @default(false)
   requireRetyping      Boolean                   @default(false)
 

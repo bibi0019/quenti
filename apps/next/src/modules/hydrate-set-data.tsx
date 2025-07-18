@@ -172,6 +172,8 @@ const ContextLayer: React.FC<React.PropsWithChildren<ContextLayerProps>> = ({
     enableCardsSorting: data.container.enableCardsSorting,
     cardsStudyStarred: data.container.cardsStudyStarred,
     cardsAnswerWith: data.container.cardsAnswerWith,
+    cardsSaveProgress: (data.container as { cardsSaveProgress: boolean })
+      .cardsSaveProgress,
     matchStudyStarred: data.container.matchStudyStarred,
     requireRetyping: data.container.requireRetyping,
     learnQuestionTypes: data.container.learnQuestionTypes as (

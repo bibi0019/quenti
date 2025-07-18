@@ -13,6 +13,7 @@ import { ZResetCardsProgressSchema } from "./reset-cards-progress.schema";
 import { ZResetLearnProgressSchema } from "./reset-learn-progress.schema";
 import { ZSetAnswerModeSchema } from "./set-answer-mode.schema";
 import { ZSetCardsAnswerWithSchema } from "./set-cards-answer-with.schema";
+import { ZSetCardsSaveProgressSchema } from "./set-cards-save-progress.schema";
 import { ZSetCardsStudyStarredSchema } from "./set-cards-study-starred.schema";
 import { ZSetEnableCardsSortingSchema } from "./set-enable-cards-sorting.schema";
 import { ZSetExtendedFeedbackBankSchema } from "./set-extended-feedback-bank.schema";
@@ -30,6 +31,7 @@ type ContainerRouterHandlerCache = {
   handlers: {
     ["set-shuffle"]?: typeof import("./set-shuffle.handler").setShuffleHandler;
     ["set-enable-cards-sorting"]?: typeof import("./set-enable-cards-sorting.handler").setEnableCardsSortingHandler;
+    ["set-cards-save-progress"]?: typeof import("./set-cards-save-progress.handler").setCardsSaveProgressHandler;
     ["set-cards-study-starred"]?: typeof import("./set-cards-study-starred.handler").setCardsStudyStarredHandler;
     ["set-cards-answer-with"]?: typeof import("./set-cards-answer-with.handler").setCardsAnswerWithHandler;
     ["set-match-study-starred"]?: typeof import("./set-match-study-starred.handler").setMatchStudyStarredHandler;
@@ -67,6 +69,15 @@ export const containerRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       await loadHandler(HANDLER_CACHE, "set-enable-cards-sorting");
       return HANDLER_CACHE.handlers["set-enable-cards-sorting"]!({
+        ctx,
+        input,
+      });
+    }),
+  setCardsSaveProgress: protectedProcedure
+    .input(ZSetCardsSaveProgressSchema)
+    .mutation(async ({ ctx, input }) => {
+      await loadHandler(HANDLER_CACHE, "set-cards-save-progress");
+      return HANDLER_CACHE.handlers["set-cards-save-progress"]!({
         ctx,
         input,
       });
