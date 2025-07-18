@@ -42,7 +42,15 @@ export const DefaultFlashcardWrapper = () => {
   const term = sortedTerms[index];
   const starred = term ? starredTerms.includes(term.id) : false;
 
-  const advanceNext = async () => {
+  const onPrev = async () => {
+    if (index === 0) return;
+
+    setIsFlipped(shouldFlip);
+    setIndex((i) => (i - 1 + sortedTerms.length) % sortedTerms.length);
+    await animateTransition(false);
+  };
+
+  const onNext = async () => {
     if (index === sortedTerms.length - 1) return;
 
     setIsFlipped(shouldFlip);
@@ -69,7 +77,7 @@ export const DefaultFlashcardWrapper = () => {
       });
     }
 
-    await advanceNext();
+    await onNext();
   };
 
   const markRemembered = () => markCard(true);
@@ -108,7 +116,7 @@ export const DefaultFlashcardWrapper = () => {
             setIndex(0);
             await animateTransition();
           } else {
-            await advanceNext();
+            await onNext();
           }
         } else {
           await flipCard();
@@ -134,12 +142,6 @@ export const DefaultFlashcardWrapper = () => {
   return (
     <motion.div
       animate={controls}
-      drag="x"
-      dragConstraints={{ left: 0, right: 0 }}
-      onDragEnd={(_, info) => {
-        if (info.offset.x > 100) void markRemembered();
-        else if (info.offset.x < -100) void markUnremembered();
-      }}
       style={{
         width: "100%",
         transformPerspective: 1500,
@@ -149,8 +151,8 @@ export const DefaultFlashcardWrapper = () => {
     >
       <FlashcardShorcutLayer
         triggerFlip={flipCard}
-        triggerPrev={markRemembered}
-        triggerNext={markUnremembered}
+        triggerPrev={cardsSaveProgress ? markUnremembered : onPrev}
+        triggerNext={cardsSaveProgress ? markRemembered : onNext}
       />
       {term && (
         <Flashcard
@@ -159,11 +161,12 @@ export const DefaultFlashcardWrapper = () => {
           index={index}
           isFlipped={isFlipped}
           numTerms={sortedTerms.length}
-          onLeftAction={markRemembered}
-          onRightAction={markUnremembered}
+          onLeftAction={cardsSaveProgress ? markUnremembered : onPrev}
+          onRightAction={cardsSaveProgress ? markRemembered : onNext}
           starred={starred}
           onRequestEdit={() => editTerm(term, isFlipped)}
           onRequestStar={() => starTerm(term)}
+          variant={cardsSaveProgress ? "sortable" : "default"}
         />
       )}
     </motion.div>
