@@ -25,7 +25,7 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 
-import { IconGripHorizontal, IconTrash } from "@tabler/icons-react";
+import { IconGripHorizontal, IconPlus, IconTrash } from "@tabler/icons-react";
 
 import { resize } from "../../../common/cdn-loaders";
 import { PhotoView } from "../../../components/photo-view/photo-view";
@@ -70,22 +70,27 @@ export const InnerTermCardRaw: React.FC<InnerTermCardProps> = ({
 
   const [wordFocused, setWordFocused] = React.useState(false);
   const [definitionFocused, setDefinitionFocused] = React.useState(false);
+  const [explanationFocused, setExplanationFocused] = React.useState(false);
 
   const wordFocusedRef = React.useRef(wordFocused);
   wordFocusedRef.current = wordFocused;
   const definitionFocusedRef = React.useRef(definitionFocused);
   definitionFocusedRef.current = definitionFocused;
+  const explanationFocusedRef = React.useRef(explanationFocused);
+  explanationFocusedRef.current = explanationFocused;
 
   const [lastFocused, setLastFocused] = React.useState<
-    "word" | "definition" | null
+    "word" | "definition" | "explanation" | null
   >(null);
 
   React.useEffect(() => {
-    if (wordFocused || definitionFocused) {
+    if (wordFocused || definitionFocused || explanationFocused) {
       anyFocus();
-      setLastFocused(wordFocused ? "word" : "definition");
+      setLastFocused(
+        wordFocused ? "word" : definitionFocused ? "definition" : "explanation",
+      );
     }
-  }, [wordFocused, definitionFocused, anyFocus]);
+  }, [wordFocused, definitionFocused, explanationFocused, anyFocus]);
 
   const placeholderTerm =
     wordLanguage != definitionLanguage ? languageName(wordLanguage) : "term";
@@ -96,7 +101,11 @@ export const InnerTermCardRaw: React.FC<InnerTermCardProps> = ({
 
   const [wordEmpty, setWordEmpty] = React.useState(false);
   const [definitionEmpty, setDefinitionEmpty] = React.useState(false);
+  const [explanationEmpty, setExplanationEmpty] = React.useState(false);
   const [added, setAdded] = React.useState(false);
+  const [showExplanation, setShowExplanation] = React.useState(
+    !!term.explanation?.trim(),
+  );
 
   const id = useSetEditorContext((s) => s.id);
   const readonly = useSetEditorContext((s) => s.readonly);
@@ -130,23 +139,40 @@ export const InnerTermCardRaw: React.FC<InnerTermCardProps> = ({
   const definitionRef = React.useRef(definitionEditor);
   definitionRef.current = definitionEditor;
 
+  const explanationEditor = useEditor({
+    ...editorConfig(term.rank + 3),
+    content: editorInput(term, "explanation"),
+    onUpdate: ({ editor }) => {
+      setExplanationEmpty(editor.isEmpty);
+    },
+    onCreate: ({ editor }) => {
+      setExplanationEmpty(editor.isEmpty);
+    },
+  });
+  const explanationRef = React.useRef(explanationEditor);
+  explanationRef.current = explanationEditor;
+
   const activeEditor = wordFocused
     ? wordRef.current
     : definitionFocused
       ? definitionRef.current
-      : null;
+      : explanationFocused
+        ? explanationRef.current
+        : null;
 
   React.useEffect(() => {
-    if (wordFocused || definitionFocused) setCurrentActive(term.rank);
+    if (wordFocused || definitionFocused || explanationFocused)
+      setCurrentActive(term.rank);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wordFocused, definitionFocused]);
+  }, [wordFocused, definitionFocused, explanationFocused]);
 
   React.useEffect(() => {
     if (!initialized) return;
     wordEditor?.commands.setContent(editorInput(term, "word"));
     definitionEditor?.commands.setContent(editorInput(term, "definition"));
+    explanationEditor?.commands.setContent(editorInput(term, "explanation"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [term.word, term.definition]);
+  }, [term.word, term.definition, term.explanation]);
 
   React.useEffect(() => {
     wordRef.current?.setOptions({
@@ -157,6 +183,11 @@ export const InnerTermCardRaw: React.FC<InnerTermCardProps> = ({
     definitionRef.current?.setOptions({
       editorProps: {
         attributes: editorAttributes(term.rank + 2),
+      },
+    });
+    explanationRef.current?.setOptions({
+      editorProps: {
+        attributes: editorAttributes(term.rank + 3),
       },
     });
   }, [term.rank]);
@@ -197,38 +228,68 @@ export const InnerTermCardRaw: React.FC<InnerTermCardProps> = ({
     (c: string) => handleInsert(c, definitionRef.current!),
     [],
   );
+  const insertExplanation = React.useCallback(
+    (c: string) => handleInsert(c, explanationRef.current!),
+    [],
+  );
 
   const blurWord = React.useCallback(() => {
     setWordFocused(false);
     // Timeout is neccesary if clicked to or tabbed immediately
     setTimeout(() => {
-      editIfDirty(definitionFocusedRef.current);
+      editIfDirty(
+        definitionFocusedRef.current || explanationFocusedRef.current,
+      );
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [term, wordEditor, definitionEditor]);
+  }, [term, wordEditor, definitionEditor, explanationEditor]);
 
   const blurDefinition = React.useCallback(() => {
     setDefinitionFocused(false);
     setTimeout(() => {
-      editIfDirty(wordFocusedRef.current);
+      editIfDirty(wordFocusedRef.current || explanationFocusedRef.current);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [term, wordEditor, definitionEditor]);
+  }, [term, wordEditor, definitionEditor, explanationEditor]);
+
+  const blurExplanation = React.useCallback(() => {
+    setExplanationFocused(false);
+    setTimeout(() => {
+      editIfDirty(wordFocusedRef.current || definitionFocusedRef.current);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [term, wordEditor, definitionEditor, explanationEditor]);
 
   const getEditorPlainTexts = () => {
     const wordJson = wordEditor!.getJSON();
     const definitionJson = definitionEditor!.getJSON();
+    const explanationJson = explanationEditor!.getJSON();
     const word = getPlainText(wordJson);
     const definition = getPlainText(definitionJson);
-    return { word, definition, wordJson, definitionJson };
+    const explanation = getPlainText(explanationJson);
+    return {
+      word,
+      definition,
+      explanation,
+      wordJson,
+      definitionJson,
+      explanationJson,
+    };
   };
 
   const getTermDelta = () => {
-    const { word, definition, wordJson, definitionJson } =
-      getEditorPlainTexts();
+    const {
+      word,
+      definition,
+      explanation,
+      wordJson,
+      definitionJson,
+      explanationJson,
+    } = getEditorPlainTexts();
 
     const wordRichText = hasRichText(wordJson, word);
     const definitionRichText = hasRichText(definitionJson, definition);
+    const explanationRichText = hasRichText(explanationJson, explanation);
 
     const compareJson = (
       one?: JSONContent | JSON | null,
@@ -242,18 +303,24 @@ export const InnerTermCardRaw: React.FC<InnerTermCardProps> = ({
     const isDirty =
       word !== term.word ||
       definition !== term.definition ||
+      explanation !== (term.explanation || "") ||
       ((wordRichText || term.wordRichText) &&
         !compareJson(wordJson, term.wordRichText)) ||
       ((definitionRichText || term.definitionRichText) &&
-        !compareJson(definitionJson, term.definitionRichText));
+        !compareJson(definitionJson, term.definitionRichText)) ||
+      ((explanationRichText || term.explanationRichText) &&
+        !compareJson(explanationJson, term.explanationRichText));
 
     return {
       word,
       definition,
+      explanation,
       wordJson,
       definitionJson,
+      explanationJson,
       wordRichText,
       definitionRichText,
+      explanationRichText,
       isDirty,
     };
   };
@@ -263,10 +330,13 @@ export const InnerTermCardRaw: React.FC<InnerTermCardProps> = ({
       isDirty,
       word,
       definition,
+      explanation,
       wordJson,
       definitionJson,
+      explanationJson,
       wordRichText,
       definitionRichText,
+      explanationRichText,
     } = getTermDelta();
 
     if (isDirty && !focused) {
@@ -278,6 +348,8 @@ export const InnerTermCardRaw: React.FC<InnerTermCardProps> = ({
         definition,
         wordRichText ? (wordJson as JSON) : undefined,
         definitionRichText ? (definitionJson as JSON) : undefined,
+        explanation,
+        explanationRichText ? (explanationJson as JSON) : undefined,
       );
     }
   };
@@ -419,6 +491,98 @@ export const InnerTermCardRaw: React.FC<InnerTermCardProps> = ({
             <LanguageButtonPure type="definition" />
           </Flex>
         </Stack>
+        {/* Explanation section */}
+        {showExplanation ? (
+          <Stack w="full" spacing={2}>
+            <Box pos="relative">
+              {(initialized || justCreated) && !readonly ? (
+                <EditorContent
+                  editor={explanationEditor}
+                  placeholder="Enter explanation"
+                  onFocus={() => setExplanationFocused(true)}
+                  onBlur={blurExplanation}
+                >
+                  {explanationEmpty && (
+                    <Text
+                      position="absolute"
+                      top="7px"
+                      left="0"
+                      color="gray.500"
+                      className="editor-placeholder"
+                      pointerEvents="none"
+                    >
+                      Enter explanation
+                    </Text>
+                  )}
+                </EditorContent>
+              ) : (
+                <DeloadedDisplayable>
+                  {term.explanation || ""}
+                </DeloadedDisplayable>
+              )}
+              {isCurrent && !readonly && (
+                <CharacterSuggestionsPure
+                  language={definitionLanguage}
+                  focused={explanationFocused}
+                  onSelect={insertExplanation}
+                  onLanguageClick={() => openMenu("definition")}
+                />
+              )}
+            </Box>
+            <Flex justifyContent="space-between">
+              <Text fontSize="sm" color={mutedText} h="6">
+                Explanation
+              </Text>
+              {!readonly && (
+                <Button
+                  size="xs"
+                  variant="ghost"
+                  colorScheme="red"
+                  onClick={() => {
+                    setShowExplanation(false);
+                    // Clear the explanation
+                    const {
+                      word,
+                      definition,
+                      wordJson,
+                      definitionJson,
+                      wordRichText,
+                      definitionRichText,
+                    } = getTermDelta();
+
+                    editTerm(
+                      term.id,
+                      word,
+                      definition,
+                      wordRichText ? (wordJson as JSON) : undefined,
+                      definitionRichText ? (definitionJson as JSON) : undefined,
+                      "",
+                      undefined,
+                    );
+                  }}
+                >
+                  Remove
+                </Button>
+              )}
+            </Flex>
+          </Stack>
+        ) : (
+          !readonly && (
+            <Box w="full">
+              <Button
+                size="sm"
+                variant="ghost"
+                leftIcon={<IconPlus size={16} />}
+                onClick={() => setShowExplanation(true)}
+                colorScheme="blue"
+                w="full"
+                justifyContent="flex-start"
+              >
+                Add explanation
+              </Button>
+            </Box>
+          )
+        )}
         <Box mt="1" minW="80px" h="60px" position="relative">
           {term.assetUrl ? (
             <>
@@ -453,10 +617,13 @@ export const InnerTermCardRaw: React.FC<InnerTermCardProps> = ({
                   isDirty,
                   word,
                   definition,
+                  explanation,
                   wordJson,
                   definitionJson,
+                  explanationJson,
                   wordRichText,
                   definitionRichText,
+                  explanationRichText,
                 } = getTermDelta();
 
                 // Empty term needs to be added
@@ -467,6 +634,8 @@ export const InnerTermCardRaw: React.FC<InnerTermCardProps> = ({
                     definition,
                     wordRichText ? (wordJson as JSON) : undefined,
                     definitionRichText ? (definitionJson as JSON) : undefined,
+                    explanation,
+                    explanationRichText ? (explanationJson as JSON) : undefined,
                   );
                 }
 

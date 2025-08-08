@@ -27,6 +27,7 @@ import { useLearnContext } from "../../stores/use-learn-store";
 import { richWord } from "../../utils/terms";
 import { ChoiceCard } from "./cards/choice";
 import { WriteCard } from "./cards/write";
+import { ThirdSideButton } from "./third-side-button";
 
 const EditTermModal = dynamic(
   () =>
@@ -106,6 +107,7 @@ export const InteractionCard = () => {
         >
           <Flex position="absolute" top="6" right="6" zIndex={10}>
             <HStack spacing={4}>
+              <ThirdSideButton term={active.term} />
               <SetCreatorOnly studySetId={active.term.studySetId}>
                 <IconButton
                   icon={<IconEditCircle />}
