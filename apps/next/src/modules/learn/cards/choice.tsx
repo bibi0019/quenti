@@ -27,6 +27,7 @@ import { useAuthedSet } from "../../../hooks/use-set";
 import { useLearnContext } from "../../../stores/use-learn-store";
 import { word } from "../../../utils/terms";
 import { HintButton } from "../hint-button";
+import { ThirdSideButton } from "../third-side-button";
 
 interface ChoiceCardProps {
   active: Question;
@@ -203,6 +204,11 @@ export const ChoiceCard: React.FC<ChoiceCardProps> = ({ active }) => {
           </Box>
         )}
       </Flex>
+      {answered && (
+        <Flex justify="center" pt={2}>
+          <ThirdSideButton term={active.term} />
+        </Flex>
+      )}
       <Grid gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="6">
         <ChoiceShortcutLayer
           choose={(i) => {

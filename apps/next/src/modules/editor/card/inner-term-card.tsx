@@ -22,6 +22,7 @@ import {
   PopoverAnchor,
   Stack,
   Text,
+  Tooltip,
   useColorModeValue,
 } from "@chakra-ui/react";
 
@@ -568,18 +569,23 @@ export const InnerTermCardRaw: React.FC<InnerTermCardProps> = ({
           </Stack>
         ) : (
           !readonly && (
-            <Box w="full">
-              <Button
-                size="sm"
-                variant="ghost"
-                leftIcon={<IconPlus size={16} />}
-                onClick={() => setShowExplanation(true)}
-                colorScheme="blue"
-                w="full"
-                justifyContent="flex-start"
+            <Box w="fit-content">
+              <Tooltip
+                label="Add additional context or explanation that will appear when students study this term"
+                placement="top"
+                hasArrow
               >
-                Add explanation
-              </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  leftIcon={<IconPlus size={16} />}
+                  onClick={() => setShowExplanation(true)}
+                  colorScheme="blue"
+                  justifyContent="flex-start"
+                >
+                  Add explanation
+                </Button>
+              </Tooltip>
             </Box>
           )
         )}
