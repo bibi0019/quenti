@@ -6,8 +6,10 @@ export type FacingTerm = {
   id: string;
   word: string;
   definition: string;
+  explanation?: string | null;
   wordRichText: Prisma.JsonValue;
   definitionRichText: Prisma.JsonValue;
+  explanationRichText?: Prisma.JsonValue | null;
   authorId?: string | null;
   author?: {
     id: string;

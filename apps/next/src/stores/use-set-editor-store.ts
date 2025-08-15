@@ -9,11 +9,12 @@ import type { StudySetType, StudySetVisibility } from "@quenti/prisma/client";
 
 export type ClientTerm = Omit<
   FacingTerm,
-  "studySetId" | "wordRichText" | "definitionRichText"
+  "studySetId" | "wordRichText" | "definitionRichText" | "explanationRichText"
 > & {
   clientKey: string;
   wordRichText?: JSON | null;
   definitionRichText?: JSON | null;
+  explanationRichText?: JSON | null;
 };
 
 interface SetEditorProps {
@@ -68,6 +69,8 @@ interface SetEditorState extends SetEditorProps {
     definition: string,
     wordRichText?: JSON,
     definitionRichText?: JSON,
+    explanation?: string,
+    explanationRichText?: JSON,
   ) => void;
   setImage: (id: string, assetUrl: string) => void;
   removeImage: (id: string) => void;
@@ -136,8 +139,10 @@ export const createSetEditorStore = (
             clientKey,
             word: "",
             definition: "",
+            explanation: "",
             wordRichText: null,
             definitionRichText: null,
+            explanationRichText: null,
             assetUrl: null,
             rank,
           };
@@ -174,8 +179,10 @@ export const createSetEditorStore = (
               clientKey,
               word: term.word,
               definition: term.definition,
+              explanation: "",
               wordRichText: null,
               definitionRichText: null,
+              explanationRichText: null,
               assetUrl: null,
               rank: filtered.length + i,
             };
@@ -211,12 +218,22 @@ export const createSetEditorStore = (
         definition: string,
         wordRichText?: JSON,
         definitionRichText?: JSON,
+        explanation?: string,
+        explanationRichText?: JSON,
       ) => {
         set((state) => {
           return {
             terms: state.terms.map((t) =>
               t.id === id
-                ? { ...t, word, definition, wordRichText, definitionRichText }
+                ? {
+                    ...t,
+                    word,
+                    definition,
+                    wordRichText,
+                    definitionRichText,
+                    explanation,
+                    explanationRichText,
+                  }
                 : t,
             ),
           };
@@ -227,6 +244,8 @@ export const createSetEditorStore = (
           definition,
           wordRichText,
           definitionRichText,
+          explanation,
+          explanationRichText,
         );
       },
       setImage: (id: string, assetUrl: string) => {

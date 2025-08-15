@@ -557,18 +557,20 @@ model FoldersOnClasses {
 }
 
 model Term {
-  id                 String  @id @default(cuid())
-  word               String  @db.VarChar(1000)
-  definition         String  @db.VarChar(1000)
-  wordRichText       Json?
-  definitionRichText Json?
-  assetUrl           String? @db.VarChar(255)
-  rank               Int
-  studySetId         String
-  ephemeral          Boolean @default(false)
-  authorId           String?
-  topicId            String?
-  submissionId       String?
+  id                     String  @id @default(cuid())
+  word                   String  @db.VarChar(1000)
+  definition             String  @db.VarChar(1000)
+  explanation            String? @db.VarChar(1000)
+  wordRichText           Json?
+  definitionRichText     Json?
+  explanationRichText    Json?
+  assetUrl               String? @db.VarChar(255)
+  rank                   Int
+  studySetId             String
+  ephemeral              Boolean @default(false)
+  authorId               String?
+  topicId                String?
+  submissionId           String?
 
   studySet   StudySet             @relation(fields: [studySetId], references: [id], onDelete: Cascade)
   user       User?                @relation(fields: [authorId], references: [id], onDelete: SetNull)

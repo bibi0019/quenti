@@ -66,7 +66,8 @@ export const WriteCard: React.FC<WriteCardProps> = ({ active }) => {
     );
   }
 
-  if (status === "correct") return <CorrectState guess={guess || ""} />;
+  if (status === "correct")
+    return <CorrectState guess={guess || ""} active={active} />;
   if (status === "incorrect")
     return <IncorrectState active={active} guess={guess} />;
   if (status === "unknownPartial")
