@@ -1,5 +1,5 @@
-import { Pool } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-serverless";
+import { connect } from "@planetscale/database";
+import { drizzle } from "drizzle-orm/planetscale-serverless";
 
 import { env } from "@quenti/env/server";
 
@@ -7,8 +7,10 @@ import * as schema from "./schema";
 
 export * from "drizzle-orm";
 
-export const db = env.NEON
-  ? drizzle(new Pool({ connectionString: env.DATABASE_URL }), {
-      schema,
+const connection = env.PLANETSCALE
+  ? connect({
+      url: env.DATABASE_URL,
     })
   : null;
+
+export const db = connection ? drizzle(connection, { schema }) : null;

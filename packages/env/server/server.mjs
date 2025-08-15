@@ -4,6 +4,7 @@ import { z } from "zod";
 export const env = createEnv({
   server: {
     DATABASE_URL: z.string().url(),
+    PLANETSCALE: z.string().optional(),
     NODE_ENV: z.enum(["development", "test", "production"]).optional(),
     NEXTAUTH_SECRET:
       process.env.NODE_ENV === "production"
@@ -55,10 +56,6 @@ export const env = createEnv({
     SERVER_NAME: z.enum(["production", "staging"]).optional(),
     BYPASS_ORG_DOMAIN_BLACKLIST: z.string().optional(),
     ENABLE_EMAIL_WHITELIST: z.string().optional(),
-    NEON: z.preprocess(
-      (val) => val === "true" || val === true,
-      z.boolean().default(false),
-    ),
   },
   skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
 });

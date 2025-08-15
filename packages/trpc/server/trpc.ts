@@ -160,7 +160,7 @@ export const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
 
   if ((lastSeenAt || 0) < ms - lastSeenUpdateInterval) {
     void (async () => {
-      await prisma.$executeRaw`UPDATE "User" SET "lastSeenAt" = NOW() WHERE id = ${userId};`;
+      await prisma.$executeRaw`UPDATE User SET lastSeenAt = NOW() WHERE id = ${userId};`;
     })();
     userMap.set(userId, ms);
   }

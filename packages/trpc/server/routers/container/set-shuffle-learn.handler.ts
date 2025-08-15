@@ -49,9 +49,9 @@ export const setShuffleLearnHandler = async ({
     const formatted = vals.map((x) => Prisma.sql`(${Prisma.join(x)})`);
 
     const query = Prisma.sql`
-      INSERT INTO "StudiableTerm" ("userId", "termId", "containerId", correctness, "studiableRank")
+      INSERT INTO StudiableTerm (userId, termId, containerId, correctness, studiableRank)
       VALUES ${Prisma.join(formatted)}
-      ON CONFLICT ("userId", "containerId", "termId", mode) DO UPDATE SET "studiableRank" = EXCLUDED."studiableRank";
+      ON DUPLICATE KEY UPDATE studiableRank = VALUES(studiableRank);
       `;
 
     await ctx.prisma.$executeRaw(query);

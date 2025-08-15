@@ -46,10 +46,9 @@ const Set = ({ set, collab }: inferSSRProps<typeof getServerSideProps>) => {
 };
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-  const dbInstance = db;
-  if (!dbInstance) return { props: { set: null, collab: false } };
+  if (!db) return { props: { set: null } };
 
-  const set = await dbInstance.query.studySet.findFirst({
+  const set = await db.query.studySet.findFirst({
     where: eq(studySet.id, ctx.query?.id as string),
     columns: {
       id: true,
@@ -84,9 +83,9 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     return { props: { set: null, collab: set?.type == "Collab" } };
 
   const { count } = (
-    await dbInstance
+    await db
       .select({
-        count: sql<number>`count(*)::bigint`,
+        count: sql<number>`cast(count(*) as unsigned)`,
       })
       .from(term)
       .where(and(eq(term.studySetId, set.id), eq(term.ephemeral, false)))
@@ -96,9 +95,9 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
 
   if (set.type == "Collab") {
     const { total } = (
-      await dbInstance
+      await db
         .select({
-          total: sql<number>`count(*)::bigint`,
+          total: sql<number>`cast(count(*) as unsigned)`,
         })
         .from(studySetCollaborator)
         .where(eq(studySetCollaborator.studySetId, set.id))
@@ -107,10 +106,8 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     collaborators = {
       total,
       avatars: set.collaborators
-        .map(
-          (c: { user: { image: string | null } }) => c.user.image || undefined,
-        )
-        .filter((img): img is string => Boolean(img)),
+        .map((c) => c.user.image)
+        .filter(Boolean) as string[],
     };
   }
 

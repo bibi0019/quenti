@@ -32,9 +32,9 @@ export const reorder = async (
   // Query assumes that the update clause will always run
   // word and definition are included as they are required properties for the "insertion"
   const query = Prisma.sql`
-    INSERT INTO "Term" (id, "studySetId", word, definition, rank)
+    INSERT INTO Term (id, studySetId, word, definition, \`rank\`)
     VALUES ${Prisma.join(formatted)}
-    ON CONFLICT (id, "studySetId") DO UPDATE SET rank = EXCLUDED.rank
+    ON DUPLICATE KEY UPDATE Term.\`rank\` = VALUES(\`rank\`)
   `;
 
   await prisma.$executeRaw(query);

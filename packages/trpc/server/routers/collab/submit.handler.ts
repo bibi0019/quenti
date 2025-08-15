@@ -147,7 +147,7 @@ export const submitHandler = async ({ ctx, input }: SubmitOptions) => {
     where: { studySetId: studySet.id, ephemeral: false },
   });
 
-  // Perform an update via insert with ON CONFLICT (all required columns)
+  // Perform an update via insert with ON DUPLICATE KEY UPDATE (all required columns)
   const vals = terms
     .sort((a, b) => a.rank - b.rank)
     .map((t, i) => [
@@ -160,11 +160,9 @@ export const submitHandler = async ({ ctx, input }: SubmitOptions) => {
   const formatted = vals.map((x) => Prisma.sql`(${Prisma.join(x)})`);
   // Only update the rank and ephemeral columns
   const query = Prisma.sql`
-    INSERT INTO "Term" (id, word, definition, rank, "studySetId")
+    INSERT INTO Term (id, word, definition, \`rank\`, studySetId)
     VALUES ${Prisma.join(formatted)}
-    ON CONFLICT (id, "studySetId") DO UPDATE SET
-      rank = EXCLUDED.rank,
-      ephemeral = FALSE
+    ON DUPLICATE KEY UPDATE \`rank\` = VALUES(\`rank\`), ephemeral = 0
   `;
 
   await ctx.prisma.$executeRaw(query);

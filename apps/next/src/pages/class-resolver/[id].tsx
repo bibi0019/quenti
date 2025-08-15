@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 
 import { HeadSeo } from "@quenti/components/head-seo";
-import { db, eq, sql } from "@quenti/drizzle";
+import { count, db, eq } from "@quenti/drizzle";
 import {
   classJoinCode as classJoinCodeTable,
   foldersOnClasses,
@@ -117,12 +117,11 @@ const ClassResolver = ({
 };
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-  const dbInstance = db;
-  if (!dbInstance) return { props: { class: null } };
+  if (!db) return { props: { class: null } };
 
   const id = ctx.query?.id as string;
 
-  const classJoinCode = await dbInstance.query.classJoinCode.findFirst({
+  const classJoinCode = await db.query.classJoinCode.findFirst({
     where: eq(classJoinCodeTable.code, id.substring(1)),
     with: {
       class: true,
@@ -131,29 +130,25 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
 
   if (!classJoinCode) return { props: { class: null } };
 
-  const { studySets } = (
-    await dbInstance
-      .select({
-        studySets: sql<number>`cast(count(*) as unsigned)`,
-      })
-      .from(studySetsOnClasses)
-      .where(eq(studySetsOnClasses.classId, classJoinCode.classId))
-  )[0]!;
-  const { folders } = (
-    await dbInstance
-      .select({
-        folders: sql<number>`cast(count(*) as unsigned)`,
-      })
-      .from(foldersOnClasses)
-      .where(eq(foldersOnClasses.classId, classJoinCode.classId))
-  )[0]!;
+  const studySets = await db
+    .select({
+      studySets: count(),
+    })
+    .from(studySetsOnClasses)
+    .where(eq(studySetsOnClasses.classId, classJoinCode.classId));
+  const folders = await db
+    .select({
+      folders: count(),
+    })
+    .from(foldersOnClasses)
+    .where(eq(foldersOnClasses.classId, classJoinCode.classId));
 
   return {
     props: {
       class: {
         ...classJoinCode.class,
-        studySets,
-        folders,
+        studySets: studySets[0]?.studySets || 0,
+        folders: folders[0]?.folders || 0,
       },
     },
   };

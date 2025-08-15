@@ -22,14 +22,13 @@ const ShareResolver = ({
 };
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-  const dbInstance = db;
-  if (!dbInstance) return { props: { entity: null } };
+  if (!db) return { props: { entity: null } };
 
   ctx.res.setHeader("Cache-Control", "s-maxage=1, stale-while-revalidate");
 
   const id = ctx.query?.id as string;
 
-  const entityShare = await dbInstance.query.entityShare.findFirst({
+  const entityShare = await db.query.entityShare.findFirst({
     where: eq(entityShareTable.id, id.substring(1)),
   });
 
@@ -43,7 +42,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       },
     };
   } else {
-    const folder = await dbInstance.query.folder.findFirst({
+    const folder = await db.query.folder.findFirst({
       where: eq(folderTable.id, entityShare.entityId),
       columns: {
         id: true,
