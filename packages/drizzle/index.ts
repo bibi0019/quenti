@@ -1,5 +1,5 @@
-import { connect } from "@planetscale/database";
-import { drizzle } from "drizzle-orm/planetscale-serverless";
+import { connect } from "@tidbcloud/serverless";
+import { drizzle } from "drizzle-orm/tidb-serverless";
 
 import { env } from "@quenti/env/server";
 
@@ -7,7 +7,7 @@ import * as schema from "./schema";
 
 export * from "drizzle-orm";
 
-const connection = env.PLANETSCALE
+const connection = env.TIDB
   ? connect({
       url: env.DATABASE_URL,
     })

@@ -4,7 +4,7 @@ import { z } from "zod";
 export const env = createEnv({
   server: {
     DATABASE_URL: z.string().url(),
-    PLANETSCALE: z.string().optional(),
+    TIDB: z.string().optional(),
     NODE_ENV: z.enum(["development", "test", "production"]).optional(),
     NEXTAUTH_SECRET:
       process.env.NODE_ENV === "production"

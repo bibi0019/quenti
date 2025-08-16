@@ -5,8 +5,8 @@
   "main": "index.ts",
   "types": "index.d.ts",
   "dependencies": {
-    "@planetscale/database": "^1.11.0",
     "@quenti/env": "workspace:*",
-    "drizzle-orm": "^0.29.1"
+    "@tidbcloud/serverless": "^0.2.0",
+    "drizzle-orm": "^0.44.4"
   }
 }
