@@ -6,27 +6,15 @@ import { Flex, Stack, Switch, Text, useColorModeValue } from "@chakra-ui/react";
 
 import { useSet } from "../../../hooks/use-set";
 import { useContainerContext } from "../../../stores/use-container-store";
-import { useSetPropertiesStore } from "../../../stores/use-set-properties-store";
 
 export const RequireRetypingSection = () => {
   const { id } = useSet();
-
-  const [hasChanged, setHasChanged] = React.useState(false);
-  const hasChangedRef = React.useRef(hasChanged);
-  hasChangedRef.current = hasChanged;
-
-  const setIsDirty = useSetPropertiesStore((s) => s.setIsDirty);
   const requireRetyping = useContainerContext((s) => s.requireRetyping);
   const setRequireRetyping = useContainerContext((s) => s.setRequireRetyping);
 
   const mutedColor = useColorModeValue("gray.600", "gray.400");
 
-  const apiRequireRetyping = api.container.setRequireRetyping.useMutation({
-    onSuccess: () => {
-      if (hasChangedRef.current === true) setIsDirty(true);
-      setHasChanged(false);
-    },
-  });
+  const apiRequireRetyping = api.container.setRequireRetyping.useMutation();
 
   return (
     <Flex gap={{ base: 4, sm: 8 }} flexDir={{ base: "column", sm: "row" }}>
@@ -40,12 +28,10 @@ export const RequireRetypingSection = () => {
         size="lg"
         isChecked={requireRetyping}
         onChange={(e) => {
-          const newValue = e.target.checked;
-          setHasChanged(true);
-          setRequireRetyping(newValue);
+          setRequireRetyping(e.target.checked);
           apiRequireRetyping.mutate({
             entityId: id,
-            requireRetyping: newValue,
+            requireRetyping: e.target.checked,
           });
         }}
       />
