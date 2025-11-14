@@ -4,6 +4,7 @@ export const getRecentStudySets = async (
   prisma: PrismaClient,
   userId: string,
   exclude?: string[],
+  limit?: number,
 ) => {
   const recentContainers = await prisma.container.findMany({
     where: {
@@ -57,7 +58,7 @@ export const getRecentStudySets = async (
     orderBy: {
       viewedAt: "desc",
     },
-    take: 16,
+    take: limit ?? 16,
   });
   const containerIds = recentContainers.map((e) => e.entityId);
 

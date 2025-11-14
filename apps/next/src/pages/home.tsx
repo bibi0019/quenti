@@ -32,7 +32,9 @@ const Home = () => {
   const { status } = useSession();
   const [filter, setFilter] = useState<HomeFilter>("all");
 
-  const { data, isLoading: recentLoading } = api.recent.get.useQuery();
+  const { data, isLoading: recentLoading } = api.recent.get.useQuery({
+    allStudySets: filter === "sets",
+  });
 
   const availableFilters = useMemo(() => {
     if (!data) return HOME_FILTER_ORDER;

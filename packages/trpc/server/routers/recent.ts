@@ -12,6 +12,7 @@ const ZRecentGetSchema = z
     entityTypes: z.array(z.enum(["set", "folder", "draft"])).optional(),
     includeDrafts: z.boolean().optional(),
     includeClasses: z.boolean().optional(),
+    allStudySets: z.boolean().optional(),
   })
   .optional();
 
@@ -29,10 +30,11 @@ export const recentRouter = createTRPCRouter({
       const includeFolders =
         !hasEntityTypeFilters || entityTypes.includes("folder");
       const includeClasses = input?.includeClasses ?? true;
+      const allStudySets = input?.allStudySets ?? false;
 
       const [sets, folders, drafts, classes] = await Promise.all([
         includeNonDraftSets
-          ? getRecentStudySets(ctx.prisma, ctx.session!.user.id)
+          ? getRecentStudySets(ctx.prisma, ctx.session!.user.id, undefined, allStudySets ? undefined : 16)
           : Promise.resolve(
               [] as Awaited<ReturnType<typeof getRecentStudySets>>,
             ),
@@ -93,7 +95,7 @@ export const recentRouter = createTRPCRouter({
             const tB = new Date(b.viewedAt || b.createdAt).getTime();
             return tB - tA;
           })
-          .slice(0, 16),
+          .slice(allStudySets ? undefined : 0, allStudySets ? undefined : 16),
         drafts: filteredDrafts,
       };
     }),
