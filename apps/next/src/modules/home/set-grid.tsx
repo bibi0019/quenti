@@ -1,58 +1,73 @@
 import { useSession } from "next-auth/react";
 
-import { api } from "@quenti/trpc";
+import type { RouterOutputs } from "@quenti/trpc";
 
-import { Grid, GridItem, Heading, Skeleton, Stack } from "@chakra-ui/react";
+import { Grid, GridItem } from "@chakra-ui/react";
 
 import { FolderCard } from "../../components/folder-card";
 import { GenericCard } from "../../components/generic-card";
 import { StudySetCard } from "../../components/study-set-card";
+import { type HomeFilter } from "./types";
 
-export const SetGrid = () => {
+interface SetGridProps {
+  data: RouterOutputs["recent"]["get"] | undefined;
+  filter: HomeFilter;
+  isLoading: boolean;
+}
+
+export const SetGrid = ({ data, filter, isLoading }: SetGridProps) => {
   const { status } = useSession();
-  const { data, isLoading: recentLoading } = api.recent.get.useQuery();
-  const isLoading = status == "unauthenticated" || recentLoading;
+  const isPending = status == "unauthenticated" || isLoading;
 
-  if (data && !data.entities.length) return null;
+  const entities = (() => {
+    if (!data) return [];
+
+    if (filter === "sets") {
+      return data.entities.filter((entity) => entity.entityType === "set");
+    }
+
+    if (filter === "folders") {
+      return data.entities.filter((entity) => entity.entityType === "folder");
+    }
+
+    return data.entities;
+  })();
+
+  if (data && !entities.length) return null;
 
   return (
-    <Stack spacing={6}>
-      <Skeleton isLoaded={!!data} rounded="md" fitContent>
-        <Heading size="lg">Recent</Heading>
-      </Skeleton>
-      <Grid templateColumns="repeat(auto-fill, minmax(256px, 1fr))" gap={4}>
-        {isLoading &&
-          Array.from({ length: 16 }).map((_, i) => (
-            <GridItem h="156px" key={i}>
-              <GenericCard.Skeleton />
-            </GridItem>
-          ))}
-        {(data?.entities || [])
-          .filter((item) => !(item.entityType === "set" && item.inFolder))
-          .map((item) => (
-            <GridItem key={item.id} h="156px">
-              {item.entityType == "set" ? (
-                <StudySetCard
-                  studySet={{
-                    ...item,
-                    visibility: item.visibility!,
-                    type: item.type!,
-                  }}
-                  collaborators={item.collaborators}
-                  draft={item.draft}
-                  numTerms={item.numItems}
-                  user={item.user}
-                />
-              ) : (
-                <FolderCard
-                  folder={{ ...item }}
-                  numSets={item.numItems}
-                  user={item.user}
-                />
-              )}
-            </GridItem>
-          ))}
-      </Grid>
-    </Stack>
+    <Grid templateColumns="repeat(auto-fill, minmax(256px, 1fr))" gap={4}>
+      {isPending &&
+        Array.from({ length: 16 }).map((_, i) => (
+          <GridItem h="156px" key={i}>
+            <GenericCard.Skeleton />
+          </GridItem>
+        ))}
+      {entities
+        .filter((item) => !(item.entityType === "set" && item.inFolder))
+        .map((item) => (
+          <GridItem key={item.id} h="156px">
+            {item.entityType == "set" ? (
+              <StudySetCard
+                studySet={{
+                  ...item,
+                  visibility: item.visibility!,
+                  type: item.type!,
+                }}
+                collaborators={item.collaborators}
+                draft={item.draft}
+                numTerms={item.numItems}
+                user={item.user}
+              />
+            ) : (
+              <FolderCard
+                folder={{ ...item }}
+                numSets={item.numItems}
+                user={item.user}
+              />
+            )}
+          </GridItem>
+        ))}
+    </Grid>
   );
 };
