@@ -36,7 +36,8 @@ export const SetGrid = ({ data, filter, isLoading }: SetGridProps) => {
   if (data && !entities.length) return null;
 
   const displayedItems = entities.filter(
-    (item) => !(item.entityType === "set" && item.inFolder && filter !== "sets")
+    (item) =>
+      !(item.entityType === "set" && item.inFolder && filter !== "sets"),
   );
 
   return (

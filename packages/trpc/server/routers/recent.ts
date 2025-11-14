@@ -34,7 +34,12 @@ export const recentRouter = createTRPCRouter({
 
       const [sets, folders, drafts, classes] = await Promise.all([
         includeNonDraftSets
-          ? getRecentStudySets(ctx.prisma, ctx.session!.user.id, undefined, allStudySets ? undefined : 16)
+          ? getRecentStudySets(
+              ctx.prisma,
+              ctx.session!.user.id,
+              undefined,
+              allStudySets ? undefined : 16,
+            )
           : Promise.resolve(
               [] as Awaited<ReturnType<typeof getRecentStudySets>>,
             ),

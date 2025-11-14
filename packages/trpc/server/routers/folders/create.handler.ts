@@ -15,7 +15,7 @@ export const createHandler = async ({ ctx, input }: CreateOptions) => {
 
   // Ensure slug is not empty
   if (!slug) {
-    slug = Math.random().toString(36).substring(2, 15)
+    slug = Math.random().toString(36).substring(2, 15);
   }
 
   const existing = await ctx.prisma.folder.findUnique({
