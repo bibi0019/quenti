@@ -4,14 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { HeadSeo } from "@quenti/components/head-seo";
 import { api } from "@quenti/trpc";
 
-import {
-  Button,
-  Container,
-  Heading,
-  Skeleton,
-  Stack,
-  Wrap,
-} from "@chakra-ui/react";
+import { Button, Container, Heading, Stack, Wrap } from "@chakra-ui/react";
 
 import { LazyWrapper } from "../common/lazy-wrapper";
 import { PageWrapper } from "../common/page-wrapper";
@@ -32,9 +25,14 @@ const Home = () => {
   const { status } = useSession();
   const [filter, setFilter] = useState<HomeFilter>("all");
 
-  const { data, isLoading: recentLoading } = api.recent.get.useQuery({
-    allStudySets: filter === "sets",
-  });
+  const { data, isLoading: recentLoading } = api.recent.get.useQuery(
+    {
+      allStudySets: filter === "sets",
+    },
+    {
+      keepPreviousData: true,
+    },
+  );
 
   const availableFilters = useMemo(() => {
     if (!data) return HOME_FILTER_ORDER;
@@ -89,52 +87,54 @@ const Home = () => {
   return (
     <AuthedPage>
       <HeadSeo title="Home" />
-      <LazyWrapper>
-        <WithFooter>
-          <Container maxW="7xl">
-            <Stack spacing={12}>
-              {!isLoading && showEmptyState && <EmptyDashboard />}
-              {showRecentSection && (
-                <Stack spacing={6}>
-                  <Skeleton isLoaded={!!data} rounded="md" fitContent>
-                    <Stack
-                      direction={{ base: "column", md: "row" }}
-                      spacing={6}
-                      align={{ base: "flex-start", md: "center" }}
-                      justify="flex-start"
-                    >
-                      <Heading size="lg">Recent</Heading>
-                      <Wrap spacing={2} shouldWrapChildren>
-                        {availableFilters.map((value) => (
-                          <Button
-                            key={value}
-                            size="sm"
-                            onClick={() => setFilter(value)}
-                            variant={filter === value ? "solid" : "outline"}
-                            colorScheme="blue"
-                            borderRadius="full"
-                          >
-                            {HOME_FILTER_LABELS[value]}
-                          </Button>
-                        ))}
-                      </Wrap>
-                    </Stack>
-                  </Skeleton>
-                  {filter !== "classes" && (
+      <WithFooter>
+        <Container maxW="7xl">
+          <Stack spacing={12}>
+            {!isLoading && showEmptyState && <EmptyDashboard />}
+            {showRecentSection && (
+              <Stack spacing={6}>
+                <Stack
+                  direction={{ base: "column", md: "row" }}
+                  spacing={6}
+                  align={{ base: "flex-start", md: "center" }}
+                  justify="flex-start"
+                >
+                  <Heading size="lg">Recent</Heading>
+                  <Wrap spacing={2} shouldWrapChildren>
+                    {availableFilters.map((value) => (
+                      <Button
+                        key={value}
+                        size="sm"
+                        onClick={() => setFilter(value)}
+                        variant={filter === value ? "solid" : "outline"}
+                        colorScheme="blue"
+                        borderRadius="full"
+                      >
+                        {HOME_FILTER_LABELS[value]}
+                      </Button>
+                    ))}
+                  </Wrap>
+                </Stack>
+                {filter !== "classes" && (
+                  <LazyWrapper>
                     <SetGrid
                       data={data}
                       filter={filter}
                       isLoading={isLoading}
                     />
-                  )}
-                </Stack>
-              )}
-              <ClassesGrid data={data} filter={filter} />
-              <News />
-            </Stack>
-          </Container>
-        </WithFooter>
-      </LazyWrapper>
+                  </LazyWrapper>
+                )}
+              </Stack>
+            )}
+            <LazyWrapper>
+              <>
+                <ClassesGrid data={data} filter={filter} />
+                <News />
+              </>
+            </LazyWrapper>
+          </Stack>
+        </Container>
+      </WithFooter>
     </AuthedPage>
   );
 };
