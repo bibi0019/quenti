@@ -1,17 +1,23 @@
 import { useSession } from "next-auth/react";
 
-import { api } from "@quenti/trpc";
+import type { RouterOutputs } from "@quenti/trpc";
 
 import { Grid, GridItem, Heading, Skeleton, Stack } from "@chakra-ui/react";
 
 import { ClassCard } from "../../components/class-card";
+import { type HomeFilter } from "./types";
 
-export const ClassesGrid = () => {
+interface ClassesGridProps {
+  data: RouterOutputs["recent"]["get"] | undefined;
+  filter: HomeFilter;
+}
+
+export const ClassesGrid = ({ data, filter }: ClassesGridProps) => {
   const { status } = useSession();
-  const { data, isLoading: recentLoading } = api.recent.get.useQuery();
 
-  if (!data?.classes.length || recentLoading || status === "loading")
-    return null;
+  if (filter !== "all" && filter !== "classes") return null;
+
+  if (!data?.classes.length || status === "loading") return null;
 
   return (
     <Stack spacing={6}>
