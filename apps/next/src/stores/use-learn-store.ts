@@ -207,9 +207,6 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
             });
           }
 
-          if (active.term.correctness !== -1 && active.term.correctness !== 1) {
-            state.roundProgress++;
-          }
           if (!shouldRepeat) state.prevTermWasIncorrect = false;
 
           state.endQuestionCallback();
@@ -280,11 +277,8 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
 
           const roundCounter = state.roundCounter + 1;
           const active = state.roundTimeline[state.roundCounter]!;
-          const progressIncrement =
-            active.term.correctness !== -1 && active.term.correctness !== 1
-              ? 1
-              : 0;
-          const roundProgress = state.roundProgress + progressIncrement;
+          const shouldRepeat = active.term.correctness === -2;
+          const roundProgress = state.roundProgress + (shouldRepeat ? 0 : 1);
 
           return {
             roundCounter,
@@ -343,9 +337,6 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
           active.term.correctness = newCorrectness;
           active.term.incorrectCount++;
 
-          if (active.term.correctness !== -1 && active.term.correctness !== 1) {
-            state.roundProgress++;
-          }
           if (!shouldRepeat) state.prevTermWasIncorrect = false;
 
           state.endQuestionCallback();
