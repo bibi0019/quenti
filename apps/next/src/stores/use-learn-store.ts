@@ -359,13 +359,16 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
           const familiarTerms = state.studiableTerms.filter(
             (x) => x.correctness == 1,
           );
+          const masteredTerms = state.studiableTerms.filter(
+            (x) => x.correctness == 2,
+          );
           const familiarTermsWithRound = familiarTerms.map((x) => {
             if (x.appearedInRound === undefined)
               throw new Error("No round information for familiar term!");
             return x;
           });
 
-          const termsThisRound = incorrectTerms
+          const prioritizedTerms = incorrectTerms
             .concat(
               // Add the familiar terms that haven't been seen at least 2 rounds ago
               familiarTermsWithRound.filter(
@@ -373,13 +376,35 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
               ),
             )
             .concat(unstudied)
-            .concat(familiarTerms) // Add the rest of the familiar terms if there's nothing else left
-            .slice(0, LEARN_TERMS_IN_ROUND);
+            .concat(familiarTerms);
 
-          // For each term that hasn't been seen (correctness == 0), set the round it appeared in as the current round
-          termsThisRound.forEach((x) => {
-            if (x.correctness == 0) x.appearedInRound = currentRound;
+          let termsThisRound = prioritizedTerms.slice(0, LEARN_TERMS_IN_ROUND);
+
+          const seenThisRoundIds = new Set<string>();
+          termsThisRound.forEach((term) => {
+            term.appearedInRound = currentRound;
+            seenThisRoundIds.add(term.id);
           });
+
+          if (termsThisRound.length < LEARN_TERMS_IN_ROUND) {
+            const masteredPool = masteredTerms.filter(
+              (term) =>
+                term.appearedInRound !== currentRound &&
+                !seenThisRoundIds.has(term.id),
+            );
+
+            const masteredFillers = shuffleArray(masteredPool).slice(
+              0,
+              LEARN_TERMS_IN_ROUND - termsThisRound.length,
+            );
+
+            masteredFillers.forEach((term) => {
+              term.appearedInRound = currentRound;
+              seenThisRoundIds.add(term.id);
+            });
+
+            termsThisRound = termsThisRound.concat(masteredFillers);
+          }
 
           const roundTimeline: Question[] = termsThisRound.map((term) => {
             let choice: boolean;
