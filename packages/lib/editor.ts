@@ -14,6 +14,7 @@ import type { Term } from "@quenti/prisma/client";
 export type EditorTerm = Term & {
   wordRichText: JSON | null | undefined;
   definitionRichText: JSON | null | undefined;
+  explanationRichText?: JSON | null | undefined;
 };
 
 // Glad you're here! https://arc.net/e/D8FDAA6B-8BCD-4D3B-AAE5-4A6756C42D45
@@ -98,14 +99,18 @@ export const editorInput = (
   term: {
     word: string;
     definition: string;
+    explanation?: string | null;
     wordRichText?: JSON | null;
     definitionRichText?: JSON | null;
+    explanationRichText?: JSON | null;
   },
-  type: "word" | "definition",
+  type: "word" | "definition" | "explanation",
 ) => {
   if (type == "word") {
     return term.wordRichText ?? plainTextToHtml(term.word);
-  } else {
+  } else if (type == "definition") {
     return term.definitionRichText ?? plainTextToHtml(term.definition);
+  } else {
+    return term.explanationRichText ?? plainTextToHtml(term.explanation || "");
   }
 };
