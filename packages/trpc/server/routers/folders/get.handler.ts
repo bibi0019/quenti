@@ -12,6 +12,7 @@ type GetOptions = {
 };
 
 export const getHandler = async ({ ctx, input }: GetOptions) => {
+  // First, fetch user to get userId for folder query
   const user = await ctx.prisma.user.findUnique({
     where: {
       username: input.username,
@@ -24,6 +25,7 @@ export const getHandler = async ({ ctx, input }: GetOptions) => {
     });
   }
 
+  // Now fetch folder (requires user.id)
   const folder = await ctx.prisma.folder.findFirst({
     where: {
       OR: [
@@ -130,7 +132,8 @@ export const getHandler = async ({ ctx, input }: GetOptions) => {
     });
   }
 
-  await ctx.prisma.container.upsert({
+  // Use upsert with include to avoid redundant query
+  const container = await ctx.prisma.container.upsert({
     where: {
       userId_entityId_type: {
         userId: ctx.session.user.id,
@@ -147,59 +150,59 @@ export const getHandler = async ({ ctx, input }: GetOptions) => {
     update: {
       viewedAt: new Date(),
     },
-  });
-
-  const container = await ctx.prisma.container.findUnique({
-    where: {
-      userId_entityId_type: {
-        userId: ctx.session.user.id,
-        entityId: folder.id,
-        type: "Folder",
-      },
-    },
     include: {
       studiableTerms: true,
     },
   });
 
-  if (!container) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-    });
-  }
-
   let terms = new Array<Term>();
   let starredTerms = new Array<string>();
 
   if (input.includeTerms) {
-    const raw = await ctx.prisma.term.findMany({
-      where: {
-        studySetId: {
-          in: studySetsICanSee.map((s) => s.id),
+    // Use database-level ordering and fetch terms + starred terms in parallel
+    const studySetIds = studySetsICanSee.map((s) => s.id);
+    
+    const [rawTerms, starredTermsResult] = await Promise.all([
+      ctx.prisma.term.findMany({
+        where: {
+          studySetId: {
+            in: studySetIds,
+          },
+          ephemeral: false,
         },
-        ephemeral: false,
-      },
-    });
+        orderBy: {
+          rank: 'asc',
+        },
+      }),
+      ctx.prisma.starredTerm.findMany({
+        where: {
+          userId: ctx.session.user.id,
+          term: {
+            studySetId: {
+              in: studySetIds,
+            },
+          },
+        },
+      }),
+    ]);
 
+    // Group terms by studySetId for efficient concatenation
+    const termsBySet = new Map<string, Term[]>();
+    for (const term of rawTerms) {
+      const existing = termsBySet.get(term.studySetId) || [];
+      existing.push(term);
+      termsBySet.set(term.studySetId, existing);
+    }
+
+    // Concatenate in study set order and re-rank
     for (const set of studySetsICanSee) {
-      terms = terms.concat(
-        raw
-          .filter((t) => t.studySetId === set.id)
-          .sort((a, b) => a.rank - b.rank),
-      );
+      const setTerms = termsBySet.get(set.id) || [];
+      terms = terms.concat(setTerms);
     }
     terms = terms.map((x, i) => ({ ...x, rank: i }));
 
-    starredTerms = (
-      await ctx.prisma.starredTerm.findMany({
-        where: {
-          userId: ctx.session.user.id,
-          termId: {
-            in: terms.map((t) => t.id),
-          },
-        },
-      })
-    ).map((t) => t.termId);
+    starredTerms = starredTermsResult.map((t) => t.termId);
+
   }
 
   if (!starredTerms.length) {
