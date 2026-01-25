@@ -155,6 +155,12 @@ export const getHandler = async ({ ctx, input }: GetOptions) => {
     },
   });
 
+  if (!container) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+    });
+  }
+
   let terms = new Array<Term>();
   let starredTerms = new Array<string>();
 
