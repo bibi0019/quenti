@@ -102,15 +102,14 @@ export const RetypeAnswerState: React.FC<RetypeAnswerStateProps> = ({
       acknowledgeIncorrect();
     } else {
       setIsCorrect(false);
-      setAnswer("");
       // Shake the input to indicate incorrect answer
       void controls.start({
         x: [0, -10, 10, -10, 10, 0],
         transition: { duration: 0.2 },
       });
-      // Focus the input after clearing
       setTimeout(() => {
         inputRef.current?.focus();
+        inputRef.current?.select();
       }, 0);
     }
   };
