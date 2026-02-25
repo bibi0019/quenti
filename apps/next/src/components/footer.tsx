@@ -64,7 +64,7 @@ export const Footer = () => {
                 }}
               >
                 <IconCopyright size={12} />
-                <Text fontSize="sm">2025</Text>
+                <Text fontSize="sm">2026</Text>
               </HStack>
               <Box
                 color="gray.300"
