@@ -1,6 +1,7 @@
 import { api } from "@quenti/trpc";
 
 import type { AppProps } from "../common/app-providers";
+import "katex/dist/katex.min.css";
 import "../styles/globals.css";
 
 const App = (props: AppProps) => {
