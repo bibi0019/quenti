@@ -29,7 +29,7 @@ Get up and running by following these steps.
 1. Clone the repo
 
    ```sh
-   git clone https://github.com/quenti-io/quenti
+   git clone https://github.com/bibi0019/quenti
    ```
 
 2. Go to the project folder
