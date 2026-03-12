@@ -12,7 +12,16 @@ import {
 } from "@quenti/lib/editor";
 import { api } from "@quenti/trpc";
 
-import { Box, Button, ButtonGroup, Stack } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  Stack,
+  Text,
+  Tooltip,
+} from "@chakra-ui/react";
+
+import { IconPlus } from "@tabler/icons-react";
 
 import { resize } from "../common/cdn-loaders";
 import { editorEventChannel } from "../events/editor";
@@ -47,6 +56,7 @@ export const EditTermModal: React.FC<EditTermModalProps> = ({
   const [cachedAssetUrl, setCachedAssetUrl] = React.useState<string | null>(
     null,
   );
+  const [showExplanation, setShowExplanation] = React.useState(false);
 
   const wordEditor = useEditor({
     ...editorConfig(),
@@ -56,6 +66,10 @@ export const EditTermModal: React.FC<EditTermModalProps> = ({
     ...editorConfig(),
     content: term ? editorInput(term as EditorTerm, "definition") : "",
   });
+  const explanationEditor = useEditor({
+    ...editorConfig(),
+    content: term ? editorInput(term as EditorTerm, "explanation") : "",
+  });
 
   React.useEffect(() => {
     if (!term || !isOpen) return;
@@ -64,6 +78,10 @@ export const EditTermModal: React.FC<EditTermModalProps> = ({
     definitionEditor?.commands.setContent(
       editorInput(term as EditorTerm, "definition"),
     );
+    explanationEditor?.commands.setContent(
+      editorInput(term as EditorTerm, "explanation"),
+    );
+    setShowExplanation(!!term.explanation?.trim());
     setTermAssetUrl(term.assetUrl);
     setCachedAssetUrl(term.assetUrl);
 
@@ -142,6 +160,64 @@ export const EditTermModal: React.FC<EditTermModalProps> = ({
               }}
             />
           </Stack>
+          {/* Explanation section */}
+          {showExplanation ? (
+            <Stack w="full">
+              <Text
+                fontSize="sm"
+                color="gray.600"
+                _dark={{ color: "gray.400" }}
+              >
+                Explanation (additional context that appears during study)
+              </Text>
+              <RichTextBar
+                activeEditor={explanationEditor}
+                bg="gray.100"
+                _dark={{
+                  bg: "gray.900",
+                }}
+              />
+              <EditorContent
+                editor={explanationEditor}
+                placeholder="Enter explanation..."
+                onKeyDown={(e) => {
+                  if ([" ", "ArrowRight", "ArrowLeft"].includes(e.key))
+                    e.stopPropagation();
+                }}
+              />
+              <Button
+                size="xs"
+                variant="ghost"
+                colorScheme="red"
+                onClick={() => {
+                  setShowExplanation(false);
+                  explanationEditor?.commands.clearContent();
+                }}
+                alignSelf="flex-start"
+              >
+                Remove explanation
+              </Button>
+            </Stack>
+          ) : (
+            <Box w="fit-content">
+              <Tooltip
+                label="Add additional context or explanation that will appear when students study this term"
+                placement="top"
+                hasArrow
+              >
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  leftIcon={<IconPlus size={16} />}
+                  onClick={() => setShowExplanation(true)}
+                  colorScheme="blue"
+                  justifyContent="flex-start"
+                >
+                  Add explanation
+                </Button>
+              </Tooltip>
+            </Box>
+          )}
           {cachedAssetUrl ? (
             <Box w="100px" h="80px" mt={{ base: 3, md: 0 }} position="relative">
               <PhotoView src={resize({ src: cachedAssetUrl, width: 500 })}>
@@ -194,13 +270,19 @@ export const EditTermModal: React.FC<EditTermModalProps> = ({
 
                 const wordJson = wordEditor!.getJSON();
                 const definitionJson = definitionEditor!.getJSON();
+                const explanationJson = explanationEditor!.getJSON();
                 const word = getPlainText(wordJson);
                 const definition = getPlainText(definitionJson);
+                const explanation = getPlainText(explanationJson);
 
                 const wordRichText = hasRichText(wordJson, word);
                 const definitionRichText = hasRichText(
                   definitionJson,
                   definition,
+                );
+                const explanationRichText = hasRichText(
+                  explanationJson,
+                  explanation,
                 );
 
                 if (!cachedAssetUrl && termAssetUrl) {
@@ -211,14 +293,19 @@ export const EditTermModal: React.FC<EditTermModalProps> = ({
                 }
 
                 edit.mutate({
-                  ...term,
+                  id: term.id,
+                  studySetId: term.studySetId,
                   word,
                   definition,
+                  explanation: explanation || undefined,
                   wordRichText: wordRichText
                     ? richTextToHtml(wordJson)
                     : undefined,
                   definitionRichText: definitionRichText
                     ? richTextToHtml(definitionJson)
+                    : undefined,
+                  explanationRichText: explanationRichText
+                    ? richTextToHtml(explanationJson)
                     : undefined,
                 });
               }}

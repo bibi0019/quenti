@@ -36,6 +36,11 @@ export const editHandler = async ({ ctx, input }: EditOptions) => {
     input.definitionRichText,
     studySet.created,
   );
+  const { plainText: explanation, richText: explanationRichText } = serialize(
+    input.explanation || "",
+    input.explanationRichText,
+    studySet.created,
+  );
 
   const term = await ctx.prisma.term.update({
     where: {
@@ -49,6 +54,8 @@ export const editHandler = async ({ ctx, input }: EditOptions) => {
       definition,
       wordRichText,
       definitionRichText,
+      explanation: explanation || null,
+      explanationRichText: explanationRichText || null,
       studySet: {
         update: {
           cortexStale: true,

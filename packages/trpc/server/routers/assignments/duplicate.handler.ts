@@ -159,6 +159,7 @@ export const duplicateHandler = async ({ ctx, input }: DuplicateOptions) => {
         studySetId: id,
         wordRichText: t.wordRichText ?? undefined,
         definitionRichText: t.definitionRichText ?? undefined,
+        explanationRichText: t.explanationRichText ?? undefined,
         ephemeral: false,
         authorId: null,
       })),
