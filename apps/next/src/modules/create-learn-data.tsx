@@ -7,6 +7,7 @@ import type {
 } from "@quenti/interfaces/studiable-term";
 
 import { useAuthedSet } from "../hooks/use-set";
+import { useContainerContext } from "../stores/use-container-store";
 import {
   LearnContext,
   type LearnStore,
@@ -17,6 +18,9 @@ export const CreateLearnData: React.FC<React.PropsWithChildren> = ({
   children,
 }) => {
   const { terms, container } = useAuthedSet();
+  const prioritizeUnstudiedLearnTerms = useContainerContext(
+    (s) => s.prioritizeUnstudiedLearnTerms,
+  );
 
   const storeRef = React.useRef<LearnStore>();
   if (!storeRef.current) {
@@ -58,6 +62,7 @@ export const CreateLearnData: React.FC<React.PropsWithChildren> = ({
         container.learnMode,
         container.answerWith,
         container.learnQuestionTypes as ("choice" | "write")[],
+        prioritizeUnstudiedLearnTerms,
         learnTerms as StudiableTermWithDistractors[],
         terms as TermWithDistractors[],
         container.learnRound,

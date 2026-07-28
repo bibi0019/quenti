@@ -159,6 +159,9 @@ const ContextLayer: React.FC<React.PropsWithChildren<ContextLayerProps>> = ({
 }) => {
   const { status } = useSession();
   const extendedFeedbackBank = useFeature(EnabledFeature.ExtendedFeedbackBank);
+  const prioritizeUnstudiedLearnTerms = useFeature(
+    EnabledFeature.PrioritizeUnstudiedLearnTerms,
+  );
 
   const getVal = (data: AuthedData): Partial<ContainerStoreProps> => ({
     shuffleFlashcards: data.container.shuffleFlashcards,
@@ -178,6 +181,7 @@ const ContextLayer: React.FC<React.PropsWithChildren<ContextLayerProps>> = ({
       | "choice"
       | "write"
     )[],
+    prioritizeUnstudiedLearnTerms,
   });
 
   const storeRef = React.useRef<ContainerStore>();

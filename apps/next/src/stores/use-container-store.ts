@@ -23,6 +23,7 @@ export interface ContainerStoreProps {
   starredTerms: string[];
   requireRetyping: boolean;
   learnQuestionTypes: ("choice" | "write")[];
+  prioritizeUnstudiedLearnTerms: boolean;
 }
 
 interface ContainerState extends ContainerStoreProps {
@@ -63,6 +64,7 @@ export const createContainerStore = (
     starredTerms: [],
     requireRetyping: false,
     learnQuestionTypes: ["choice", "write"],
+    prioritizeUnstudiedLearnTerms: false,
   };
 
   return createStore<ContainerState>()(
