@@ -22,6 +22,7 @@ export interface LearnStoreProps {
   answerMode: StudySetAnswerMode;
   studiableTerms: StudiableTermWithDistractors[];
   allTerms: TermWithDistractors[];
+  prioritizeUnstudiedLearnTerms: boolean;
   numTerms: number;
   termsThisRound: number;
   currentRound: number;
@@ -47,6 +48,7 @@ interface LearnState extends LearnStoreProps {
     mode: LearnMode,
     answerMode: StudySetAnswerMode,
     questionTypes: ("choice" | "write")[],
+    prioritizeUnstudiedLearnTerms: boolean,
     studiableTerms: StudiableTermWithDistractors[],
     allTerms: TermWithDistractors[],
     round: number,
@@ -73,6 +75,7 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
   const DEFAULT_PROPS: LearnStoreProps = {
     mode: "Learn",
     answerMode: "Definition",
+    prioritizeUnstudiedLearnTerms: false,
     studiableTerms: [],
     allTerms: [],
     numTerms: 0,
@@ -98,6 +101,7 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
         mode,
         answerMode,
         questionTypes,
+        prioritizeUnstudiedLearnTerms,
         studiableTerms,
         allTerms,
         round,
@@ -125,6 +129,7 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
           mode,
           answerMode,
           questionTypes,
+          prioritizeUnstudiedLearnTerms,
           studiableTerms,
           allTerms,
           numTerms: studiableTerms.length,
@@ -368,15 +373,28 @@ export const createLearnStore = (initProps?: Partial<LearnStoreProps>) => {
             return x;
           });
 
-          const prioritizedTerms = incorrectTerms
-            .concat(
-              // Add the familiar terms that haven't been seen at least 2 rounds ago
-              familiarTermsWithRound.filter(
-                (x) => currentRound - x.appearedInRound! >= 2,
-              ),
-            )
-            .concat(unstudied)
-            .concat(familiarTerms);
+          let prioritizedTerms: StudiableTermWithDistractors[];
+          if (state.prioritizeUnstudiedLearnTerms) {
+            prioritizedTerms = unstudied
+              .concat(incorrectTerms)
+              .concat(
+                // Add the familiar terms that haven't been seen at least 2 rounds ago
+                familiarTermsWithRound.filter(
+                  (x) => currentRound - x.appearedInRound! >= 2,
+                ),
+              )
+              .concat(familiarTerms);
+          } else {
+            prioritizedTerms = incorrectTerms
+              .concat(
+                // Add the familiar terms that haven't been seen at least 2 rounds ago
+                familiarTermsWithRound.filter(
+                  (x) => currentRound - x.appearedInRound! >= 2,
+                ),
+              )
+              .concat(unstudied)
+              .concat(familiarTerms);
+          }
 
           let termsThisRound = prioritizedTerms.slice(0, LEARN_TERMS_IN_ROUND);
 
