@@ -3,14 +3,24 @@ import React from "react";
 
 import { GenericLabel } from "@quenti/components";
 import { cleanSpaces } from "@quenti/core/evaluator";
+import type { Question } from "@quenti/interfaces";
 import { getRandom } from "@quenti/lib/array";
 
-import { Stack } from "@chakra-ui/react";
+import { Flex, Stack } from "@chakra-ui/react";
 
 import { useLearnContext } from "../../../../stores/use-learn-store";
+import { ThirdSideButton } from "../../third-side-button";
 import { AnswerCard } from "./answer-card";
 
-export const CorrectState: React.FC<{ guess: string }> = ({ guess }) => {
+export interface CorrectStateProps {
+  guess: string;
+  active: Question;
+}
+
+export const CorrectState: React.FC<CorrectStateProps> = ({
+  guess,
+  active,
+}) => {
   const feedbackBank = useLearnContext((s) => s.feedbackBank);
 
   const [remark] = React.useState(getRandom(feedbackBank.correct));
@@ -29,6 +39,9 @@ export const CorrectState: React.FC<{ guess: string }> = ({ guess }) => {
       <Stack spacing="2" pb="4">
         <GenericLabel evaluation>{remark}</GenericLabel>
         <AnswerCard text={cleanSpaces(guess)} correct />
+        <Flex justify="center" pt={2}>
+          <ThirdSideButton term={active.term} />
+        </Flex>
       </Stack>
     </motion.div>
   );

@@ -26,6 +26,8 @@ export interface SortableTermCardProps {
     definition: string,
     wordRichText?: JSON,
     definitionRichText?: JSON,
+    explanation?: string,
+    explanationRichText?: JSON,
   ) => void;
   deleteTerm: (id: string) => void;
   anyFocus: () => void;

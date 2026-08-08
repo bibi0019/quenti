@@ -235,15 +235,20 @@ export const EditorContextLayer: React.FC<
           definition,
           wordRichText_,
           definitionRichText_,
+          explanation,
+          explanationRichText_,
         ) => {
           const state = storeRef.current!.getState();
 
-          const { wordRichText, definitionRichText } = {
+          const { wordRichText, definitionRichText, explanationRichText } = {
             wordRichText: wordRichText_
               ? richTextToHtml(wordRichText_)
               : undefined,
             definitionRichText: definitionRichText_
               ? richTextToHtml(definitionRichText_)
+              : undefined,
+            explanationRichText: explanationRichText_
+              ? richTextToHtml(explanationRichText_)
               : undefined,
           };
 
@@ -255,6 +260,8 @@ export const EditorContextLayer: React.FC<
               definition,
               wordRichText,
               definitionRichText,
+              explanation,
+              explanationRichText,
             });
           } else {
             apiAddTerm.mutate({
@@ -264,6 +271,8 @@ export const EditorContextLayer: React.FC<
                 definition,
                 wordRichText,
                 definitionRichText,
+                explanation,
+                explanationRichText,
                 rank: state.terms.find((x) => x.id == termId)!.rank,
               },
             });

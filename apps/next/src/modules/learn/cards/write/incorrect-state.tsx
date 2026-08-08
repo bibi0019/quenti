@@ -18,6 +18,7 @@ import { ScriptFormatter } from "../../../../components/script-formatter";
 import { useAuthedSet } from "../../../../hooks/use-set";
 import { useLearnContext } from "../../../../stores/use-learn-store";
 import { word } from "../../../../utils/terms";
+import { ThirdSideButton } from "../../third-side-button";
 import { AnswerCard } from "./answer-card";
 
 export interface IncorrectStateProps {
@@ -171,6 +172,9 @@ export const IncorrectState: React.FC<IncorrectStateProps> = ({
               correct
               showIcon={checkVisible}
             />
+            <Flex justify="center" pt={2}>
+              <ThirdSideButton term={active.term} />
+            </Flex>
           </Stack>
         </motion.div>
       </Stack>

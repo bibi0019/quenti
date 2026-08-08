@@ -8,6 +8,8 @@ export const ZAddSchema = z.object({
     definition: z.string(),
     wordRichText: z.string().optional(),
     definitionRichText: z.string().optional(),
+    explanation: z.string().optional(),
+    explanationRichText: z.string().optional(),
   }),
 });
 

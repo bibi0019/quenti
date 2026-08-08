@@ -46,6 +46,11 @@ export const addHandler = async ({ ctx, input }: AddOptions) => {
     input.term.definitionRichText,
     studySet.created,
   );
+  const { plainText: explanation, richText: explanationRichText } = serialize(
+    input.term.explanation || "",
+    input.term.explanationRichText,
+    studySet.created,
+  );
 
   // Insert empty terms below the current rank if it is greater than the current max rank
   const merges = [];
@@ -104,6 +109,8 @@ export const addHandler = async ({ ctx, input }: AddOptions) => {
       definition,
       wordRichText,
       definitionRichText,
+      explanation: explanation || null,
+      explanationRichText: explanationRichText || null,
     },
   });
 

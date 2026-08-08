@@ -6,6 +6,7 @@ import { api } from "@quenti/trpc";
 import {
   Box,
   Button,
+  Center,
   Divider,
   Flex,
   Grid,
@@ -19,6 +20,7 @@ import { useAuthedSet } from "../../../../hooks/use-set";
 import { useContainerContext } from "../../../../stores/use-container-store";
 import { useLearnContext } from "../../../../stores/use-learn-store";
 import { word } from "../../../../utils/terms";
+import { ThirdSideButton } from "../../third-side-button";
 
 export interface UnknownPartialStateProps {
   active: Question;
@@ -151,6 +153,9 @@ export const UnknownPartialState: React.FC<UnknownPartialStateProps> = ({
           </GridItem>
         </Grid>
       </Stack>
+      <Center>
+        <ThirdSideButton term={active.term} />
+      </Center>
     </Stack>
   );
 };
